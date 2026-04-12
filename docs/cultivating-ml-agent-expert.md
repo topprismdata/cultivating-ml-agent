@@ -20,6 +20,7 @@
 8. [工具链与基础设施](#8-工具链与基础设施)
 9. [效果衡量与能力成长](#9-效果衡量与能力成长)
 10. [实施路线图](#10-实施路线图)
+11. **[Proactive Evolution：从"做完再看"到"边做边想边调整"](#11-proactive-evolution从做完再看到边做边想边调整)**
 
 > **阅读建议**: SOP和方法论（第5章）是本文最核心的内容，决定了培养体系的框架。
 > 技能清单（第6章）和反模式（第7章）是参考材料，根据实际项目需要查阅。
@@ -996,6 +997,172 @@ mkdir -p ~/.claude/skills
 
 ---
 
+## 11. Proactive Evolution：从"做完再看"到"边做边想边调整"
+
+> **本章基于与 30+ 篇前沿 AI Agent 论文的对比分析**，识别出当前培养体系可增强的
+> 7 个维度。已落地为 agent-nurture-framework Part 9、claudeception Self-Critique
+> Checkpoint 等具体 Skill 更新。
+
+### 11.1 问题：当前模式的三大局限
+
+通过对比 Self-Evolving Agents Survey (arXiv 2026)、SPIRAL、Mem0 等前沿研究，
+我们发现当前模式存在三个结构性局限：
+
+| 维度 | 当前状态 | 前沿研究 | 差距 |
+|------|---------|---------|------|
+| **反馈** | 仅 Outcome（任务结束后的分数） | Process + Outcome（每步评估） | 无中间自检 |
+| **规划** | Reactive（遇问题才解决） | Proactive（预先模拟再执行） | 无预判机制 |
+| **执行** | Serial（一条路走到底） | Parallel（多方案并行探索） | 无并行探索 |
+
+一句话概括：**从"做完再看"进化为"边做边想边调整"**。
+
+### 11.2 增强点 1: Self-Critique Checkpoint（P0 — 立即实施）
+
+**核心思想**：在每个关键决策点插入自评，而非只在任务结束后评估。
+
+```
+当前流程：
+  写代码 → 跑实验 → 看结果 → 如果差就调试
+
+增强流程：
+  写代码 → [自评: 理论依据？风险点？] → 跑实验 → [中间检查: loss 正常？特征重要性合理？]
+         → 看结果 → 回顾自评中的风险点是否命中
+```
+
+**实际案例**：R11 训练时，如果我们在 Day 1 前做了 Self-Critique（"CatBoost 在
+2.8M 行表格数据上训练缓慢且效果不确定"），就不会在 CatBoost 上浪费数小时。
+
+**研究依据**：SPIRAL 的 Critic 角色 — 在每一步生成密集的定量评估，而非只看
+最终结果的稀疏奖励。
+
+### 11.3 增强点 2: Simulate-Before-Execute（P0 — 立即实施）
+
+**核心思想**：执行前模拟 2-3 个方案的可能结果，选择最有希望的方案。
+
+```
+Phase 1: 列出 2-3 个候选方案
+Phase 2: 对每个方案快速模拟（最好结果、最差结果、概率估计）
+Phase 3: 选择期望值最高的方案执行
+Phase 4: 如果执行偏离预期，回退到模拟阶段调整
+```
+
+**实际案例**：R11 计划阶段，如果模拟了各模型的效果：
+- LightGBM: 快速、已验证、CV~0.398 — 高信心
+- XGBoost: 类似 LGB，小幅提升 — 中信心
+- CatBoost: 慢、大表效果不确定 — 低信心
+→ 应该先跑 LGB-only baseline（即 R11b），再考虑加模型。
+
+**研究依据**：SPIRAL 的 Planner-Simulator-Critic 三角色架构。
+
+### 11.4 增强点 3: Auto-Consolidation（P1 — 下一阶段）
+
+**问题**：Skills 随时间碎片化，合并只在手动触发时发生。
+
+**方案**：定期自动扫描并提议合并。
+
+```python
+# 每 10 个 session 自动执行
+if session_count % 10 == 0:
+    clusters = find_skill_clusters(min_size=5)
+    for cluster in clusters:
+        propose_merge(cluster)  # 例: 13 个 Re-ID skills → 2 个综合 skills
+    stale = find_stale_skills(days=30)
+    propose_archive(stale)
+```
+
+**研究依据**：Mem0 的 Memory Manager（自动 ADD/MERGE/UPDATE/DELETE）；
+Memory-R1 的 inactive consolidation。
+
+### 11.5 增强点 4: Multi-Equivalent Descriptions（P1 — 下一阶段）
+
+**问题**：Skill 激活依赖关键词匹配，术语不一致就激活失败。
+
+**方案**：每个 Skill 的 description 包含多种等价描述。
+
+```yaml
+# 差: 单一触发条件
+description: Use when LightGBM hits iteration limit
+
+# 好: 多种等价触发
+description: |
+  Use when: (1) GBDT training hits iteration limit,
+  (2) best_iteration equals n_estimators,
+  (3) training loss still decreasing at end,
+  (4) early stopping never triggered,
+  (5) model underfitting despite high iterations
+```
+
+### 11.6 增强点 5: Parallel Exploration（P2 — 按需使用）
+
+**问题**：串行探索方案，在错误方向上浪费时间。
+
+**方案**：利用 Claude Code 的 Task 工具并行探索。
+
+```
+# 当前: 串行
+方案A → 失败 → 方案B → 失败 → 方案C → 成功（3天）
+
+# 增强: 并行
+Task(Agent1, 方案A) + Task(Agent2, 方案B) + Task(Agent3, 方案C)
+→ 收集结果 → 合并最佳部分（1天）
+```
+
+**研究依据**：Population-Based Evolution；多 Agent 变体并行探索。
+
+### 11.7 增强点 6: Path Efficiency Analysis（P2 — 增强 Claudeception）
+
+**问题**：Session 回顾只看"学到了什么"，不看"学得多高效"。
+
+**方案**：在 claudeception 回顾时增加路径效率分析：
+
+| 指标 | 含义 | 目标 |
+|------|------|------|
+| Recovery Rate | 犯错后恢复正确路径的比例 | 100% |
+| Repetitiveness Rate | 重复无效动作的比例 | < 10% |
+| Tool Productivity | 有效工具调用 / 总调用 | > 80% |
+| Costliest Wrong Path | 最昂贵的错误路径 + 早期预警信号 | 识别并记录 |
+
+### 11.8 增强点 7: Capability Retention Check（P3 — 季度执行）
+
+**问题**：只测量增长，不测量遗忘。
+
+**方案**：季度重新评估老领域能力。
+
+| 指标 | 含义 |
+|------|------|
+| Forgetting (FGT) | 学新任务后，老任务准确率下降多少 |
+| Backward Transfer (BWT) | 学新任务后，老任务准确率是否反而提升 |
+
+**研究依据**：LifelongAgentBench；持续学习中的 FGT/BWT 指标。
+
+### 11.9 增强优先级矩阵
+
+| 优先级 | 增强点 | 实现难度 | 预期收益 | 状态 |
+|--------|-------|---------|---------|------|
+| **P0** | Self-Critique Checkpoint | 低（改 SOP） | 高（减少 30% 错误路径） | ✅ 已落地 |
+| **P0** | Simulate-Before-Execute | 低（改 SOP） | 高（避免方向性错误） | ✅ 已落地 |
+| **P1** | Auto-Consolidation | 中（需写脚本） | 中（减少碎片化） | 待实施 |
+| **P1** | Multi-Equivalent Descriptions | 低（批量改） | 中（提高激活率） | 待实施 |
+| **P2** | Parallel Exploration | 低（用 Task 工具） | 中（加速实验） | 按需 |
+| **P2** | Path Efficiency Analysis | 中（改 claudeception） | 中（提升学习效率） | ✅ 已落地 |
+| **P3** | Capability Retention Check | 高（需重新评估） | 长期（防退化） | 季度执行 |
+
+### 11.10 与五阶段学习闭环的集成
+
+```
+Stage 1 (Study)  ─── 不变
+Stage 2 (Verify) ─── 不变
+Stage 3 (Apply)  ──┬── Self-Critique Checkpoint（每个关键步骤前）
+                    ├── Simulate-Before-Execute（选择方案前）
+                    └── Parallel Exploration（多方案并行时）
+Stage 4 (Extract) ─┬── Path Efficiency Analysis（增强 claudeception）
+                    └── Auto-Consolidation（定期，非仅按需）
+Stage 5 (Plan)    ──┬── Capability Retention Check（季度）
+                    └── Multi-Equivalent Descriptions（改善未来激活）
+```
+
+---
+
 ## 附录 A: 技能模板
 
 ### Bug Fix 模板
@@ -1084,5 +1251,9 @@ ssh <user>@<gpu-server> "nvidia-smi"
 > **方法论 > 框架 > 技巧**: SOP决定方向，框架提供工具，技巧优化细节。
 > 技巧会随时间过时，但系统化的方法论（竞赛启动SOP、模型调试SOP、
 > 技能提取SOP）是跨项目通用的核心能力。
+>
+> **Proactive Evolution**: 基于前沿研究对比，将培养体系从被动反应式
+> 升级为主动预判式。Self-Critique Checkpoint 和 Simulate-Before-Execute
+> 两个 P0 增强已落地，预计可减少 30% 的错误路径。
 >
 > 本文档本身就是一个活的文档——随着新项目和技能的积累，应持续更新。
