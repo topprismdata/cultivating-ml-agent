@@ -184,4 +184,7 @@ extracted from past projects.
 - Multi-actor validation: Multi-Actor Insight Extraction (Nature Scientific Reports, 2025)
 - Analogical transfer: Structure-Mapping Theory (Gentner 1983), Transferable Meta-Learning (Kang 2023)
 - Charlie Munger's "latticework of mental models" framework
+- Self-Evolving Agents Survey (arXiv 2026) — reward-based, imitation, and population-based evolution strategies
+- SPIRAL (2026) — Planner-Simulator-Critic for proactive lookahead
+- Mem0 / Memory-R1 — active memory consolidation patterns
 - See `references/principles-from-competitions.md` for worked examples

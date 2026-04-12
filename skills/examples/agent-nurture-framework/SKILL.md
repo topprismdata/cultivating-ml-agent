@@ -592,6 +592,213 @@ User starts a new ML task
 
 ---
 
+---
+
+## Part 9: Proactive Evolution — From "做完再看" to "边做边想边调整"
+
+Based on comparative analysis with 30+ cutting-edge AI agent research papers (Self-Evolving Agents
+Survey, SPIRAL, Mem0, Memory-R1, etc.), this section identifies 7 enhancement dimensions that
+evolve our reactive model into a proactive one.
+
+### 9.1 Enhancement Overview
+
+```
+                    CURRENT STATE                              ENHANCED STATE
+                ┌─────────────────┐                      ┌─────────────────┐
+  Feedback:     │ Outcome only    │  ──────────────────▶  │ Process + Outcome│
+  Planning:     │ Reactive only   │  ──────────────────▶  │ Proactive Sim   │
+  Exploration:  │ Serial only     │  ──────────────────▶  │ Parallel Agents  │
+  Consolidation:│ On-demand only  │  ──────────────────▶  │ Auto + On-demand │
+  Retention:    │ Growth only     │  ──────────────────▶  │ Growth + Forgetting│
+  Activation:   │ Keyword match   │  ──────────────────▶  │ Context-aware    │
+  Evaluation:   │ Final result    │  ──────────────────▶  │ Full trajectory  │
+                └─────────────────┘                      └─────────────────┘
+```
+
+### 9.2 Self-Critique Checkpoint (P0 — Implement Immediately)
+
+**Problem**: We only evaluate results after task completion. Errors accumulate through the
+execution path unchecked.
+
+**Solution**: Insert self-evaluation checkpoints at critical decision points.
+
+**When to use**: Before any non-trivial implementation step (model selection, feature engineering
+strategy, ensemble architecture, hyperparameter ranges).
+
+**Implementation**:
+
+```
+Before executing a plan step, ask:
+  1. "What is the theoretical basis for this approach?"
+  2. "What are the top 3 risks?"
+  3. "What signal would tell me this is wrong BEFORE I finish?"
+
+After getting intermediate results, check:
+  4. "Did any of my predicted risks materialize?"
+  5. "Is the intermediate result consistent with my expectations?"
+  6. "Should I continue or pivot?"
+```
+
+**Real example**: R11 ensemble training — CatBoost on 2.8M rows was slow and ineffective.
+A self-critique checkpoint would have asked "Is CatBoost worth the compute cost here?" BEFORE
+spending hours training it. The answer from past experience (CatBoost struggles with large
+tabular data) would have redirected effort sooner.
+
+**Research basis**: SPIRAL (Symbolic LLM Planning via Grounded and Reflective Search) — dense
+feedback at every intermediate step, not just sparse terminal rewards.
+
+### 9.3 Simulate-Before-Execute (P0 — Implement Immediately)
+
+**Problem**: We jump to implementation without simulating likely outcomes. This leads to
+expensive wrong directions.
+
+**Solution**: Before complex tasks, briefly simulate 2-3 approaches and predict their outcomes.
+
+**When to use**: When multiple approaches exist with unclear tradeoffs; when the task involves
+significant compute time; when past experience suggests common failure modes.
+
+**Implementation**:
+
+```
+Phase 1: Generate Options (2-3 min)
+  - List 2-3 candidate approaches
+  - For each: best case outcome, worst case outcome, probability estimate
+
+Phase 2: Simulate (2-3 min)
+  - For each approach, mentally simulate:
+    * What data path does it take?
+    * Where are the bottlenecks?
+    * What has past experience (skills/memory) shown?
+
+Phase 3: Select & Execute
+  - Choose the approach with best expected value
+  - If simulation reveals uncertainty, start with the smallest experiment
+    that would resolve the uncertainty
+```
+
+**Real example**: Before R11, simulating the ensemble approach:
+- LightGBM: Fast, proven on this data, CV ~0.398 — HIGH confidence
+- XGBoost: Similar to LGB, small improvement likely — MEDIUM confidence
+- CatBoost: Slow on large tabular, uncertain benefit — LOW confidence
+→ Should have started with LGB-only baseline (R11b), then added models selectively.
+
+**Research basis**: SPIRAL's Planner-Simulator-Critic architecture; proactive lookahead
+vs reactive correction.
+
+### 9.4 Auto-Consolidation (P1 — Next Phase)
+
+**Problem**: Skills accumulate as fragments. Consolidation only happens when manually triggered.
+
+**Solution**: Periodic automatic skill cluster detection and merge proposals.
+
+**Implementation**: Add to session startup routine — every N sessions, scan for:
+- Clusters of 5+ skills with same prefix → propose merge
+- Skills not triggered in 30 days → propose archive
+- Skills with >50% content overlap → propose merge
+
+**Research basis**: Mem0's Memory Manager agent (ADD/MERGE/UPDATE/DELETE operations);
+Memory-R1's active consolidation during inactive periods.
+
+### 9.5 Capability Retention Check (P2 — Quarterly)
+
+**Problem**: We measure growth but not forgetting. Old domain capabilities may degrade.
+
+**Solution**: Quarterly evaluation of performance on past domain types.
+
+**Key metrics from research**:
+- **Forgetting (FGT)**: Accuracy drop on old tasks after learning new ones
+- **Backward Transfer (BWT)**: Accuracy improvement on old tasks due to new learning
+
+**Research basis**: LifelongAgentBench; FGT/BWT metrics from continual learning literature.
+
+### 9.6 Parallel Exploration (P2 — Use When Appropriate)
+
+**Problem**: Serial exploration of approaches wastes time on wrong directions.
+
+**Solution**: Use multi-agent Task tool to explore multiple approaches simultaneously.
+
+**When to use**: When approaches are independent and each takes significant time.
+
+**Implementation**:
+```
+# Instead of:
+Approach A → fail → Approach B → fail → Approach C → success (3 days)
+
+# Do:
+Task(Agent1, Approach A) + Task(Agent2, Approach B) + Task(Agent3, Approach C)
+→ Collect results → Merge best elements (1 day)
+```
+
+**Research basis**: Population-based evolution; maintaining multiple agent variants.
+
+### 9.7 Multi-Equivalent Descriptions (P1 — Batch Update)
+
+**Problem**: Skills activate via keyword matching. If problem description uses different
+terminology than the skill description, activation fails.
+
+**Solution**: Enhance each skill description with multiple equivalent phrasings of the
+trigger conditions.
+
+**Pattern**:
+```yaml
+# Instead of single trigger:
+description: Use when LightGBM hits iteration limit
+
+# Use multiple equivalent triggers:
+description: |
+  Use when: (1) LightGBM/XGBoost/CatBoost training hits iteration limit,
+  (2) best_iteration equals n_estimators parameter,
+  (3) training loss still decreasing at end of training,
+  (4) early stopping never triggered,
+  (5) model appears underfitting despite high iteration count
+```
+
+### 9.8 Path Efficiency Analysis (P2 — Enhance Claudeception)
+
+**Problem**: Session retrospectives only capture "what was learned", not "how efficiently
+we learned it".
+
+**Solution**: Add trajectory-level analysis to claudeception retrospective mode.
+
+**Metrics**:
+- **Recovery Rate**: % of error paths that led to correct recovery
+- **Repetitiveness Rate**: % of redundant/looping actions
+- **Tool Productivity**: Ratio of productive tool calls to total calls
+- **Costliest Wrong Path**: The single most expensive wrong direction and its early warning signals
+
+**Research basis**: Agent evaluation frameworks — trajectory metrics vs outcome metrics;
+Recovery Rate, Repetitiveness Rate from Galileo/Maxim AI evaluation platforms.
+
+### 9.9 Enhancement Priority Matrix
+
+| Priority | Enhancement | Effort | Impact | When |
+|----------|------------|--------|--------|------|
+| **P0** | Self-Critique Checkpoint | Low (SOP change) | High (-30% wrong paths) | Immediate |
+| **P0** | Simulate-Before-Execute | Low (SOP change) | High (avoid bad directions) | Immediate |
+| **P1** | Auto-Consolidation | Medium (script) | Medium (less fragmentation) | Next phase |
+| **P1** | Multi-Equivalent Descriptions | Low (batch edit) | Medium (better skill activation) | Next phase |
+| **P2** | Parallel Exploration | Low (use Task tool) | Medium (faster experiments) | As needed |
+| **P2** | Path Efficiency Analysis | Medium (enhance claudeception) | Medium (better learning) | Next phase |
+| **P3** | Capability Retention Check | High (re-evaluation) | Long-term (prevent decay) | Quarterly |
+
+### 9.10 Integration with Existing Framework
+
+The enhancements integrate at these points in the Five-Stage Learning Loop:
+
+```
+Stage 1 (Study) ─── unchanged
+Stage 2 (Verify) ─── unchanged
+Stage 3 (Apply) ──┬── Self-Critique Checkpoint (before each major step)
+                   ├── Simulate-Before-Execute (before choosing approach)
+                   └── Parallel Exploration (when multiple viable approaches exist)
+Stage 4 (Extract) ─┬── Path Efficiency Analysis (enhanced claudeception)
+                    └── Auto-Consolidation (periodic, not just on-demand)
+Stage 5 (Plan) ───┬── Capability Retention Check (quarterly)
+                   └── Multi-Equivalent Descriptions (improve future skill activation)
+```
+
+---
+
 ## References
 
 - Zhang, L. (2026). "Nurture-First Agent Development: Building Domain-Expert AI Agents Through Conversational Knowledge Crystallization." arXiv:2603.10808
@@ -600,3 +807,8 @@ User starts a new ML task
 - "Don't Just Build Agents, Build Memory-Augmented AI Agents." MongoDB, 2026.
 - "Your AI Agent Has Amnesia. And You Designed It That Way." dev.to, 2026.
 - "Building an AI-Ready Knowledge Base: Best Practices for 2026." Rezolve.ai, 2026.
+- "A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve." arXiv, 2026.
+- SPIRAL: "Symbolic LLM Planning via Grounded and Reflective Search." 2026.
+- Mem0 / Memory-R1: Active memory consolidation with ADD/MERGE/UPDATE/DELETE operations.
+- LifelongAgentBench: FGT (Forgetting) and BWT (Backward Transfer) metrics for continual learning.
+- Agent Evaluation Framework (Galileo AI): Trajectory vs outcome metrics.

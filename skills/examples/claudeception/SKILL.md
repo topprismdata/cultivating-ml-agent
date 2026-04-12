@@ -22,6 +22,8 @@ Extract when you encounter:
 3. **Workaround discovery** — Tool/framework limitations requiring experimentation
 4. **Configuration insights** — Project-specific setups differing from standard
 5. **Trial-and-error success** — Multiple approaches before finding what worked
+6. **Self-critique catches** — A predicted risk actually materialized (high-value signal)
+7. **Path efficiency insights** — A systemic execution pattern worth improving
 
 ## Dual-Track Classification
 
@@ -164,6 +166,48 @@ When `/claudeception` is invoked at session end:
 3. Prioritize highest-value, most reusable (1-3 per session)
 4. Extract using the process above
 5. Summarize what was created and why
+6. **Path Efficiency Analysis** (enhanced retrospective):
+
+### Path Efficiency Analysis
+
+After extracting skills, analyze the session's execution trajectory:
+
+```
+Path Efficiency Questions:
+  1. Recovery Rate: Did I recover from errors efficiently?
+     - Count error paths that led to correct recovery vs total errors
+  2. Repetitiveness: Did I repeat any failed approach?
+     - Flag any approach tried more than once without modification
+  3. Most Expensive Wrong Path: What was the costliest detour?
+     - Could it have been avoided with a Self-Critique Checkpoint?
+     - What early warning signal was missed?
+  4. Simulate-Before-Execute: Would pre-simulation have helped?
+     - Identify decisions where simulating 2-3 options would have saved time
+```
+
+If Path Efficiency Analysis reveals a systemic issue (not just a one-off mistake),
+extract it as a skill with trigger conditions for future sessions.
+
+## Self-Critique Checkpoint (Proactive Evolution)
+
+Before executing any non-trivial step during a session, briefly evaluate:
+
+```
+1. "What is the theoretical basis for this approach?"
+2. "What are the top 3 risks?"
+3. "What signal would tell me this is wrong BEFORE I finish?"
+```
+
+After getting intermediate results:
+```
+4. "Did any predicted risks materialize?"
+5. "Is the intermediate result consistent with expectations?"
+6. "Should I continue or pivot?"
+```
+
+If a Self-Critique Catchpoint catches a risk that actually materialized, the insight
+is high-priority for extraction — it means the agent predicted correctly but didn't act
+on its own prediction.
 
 ## Self-Check Prompts
 
@@ -171,8 +215,10 @@ After completing any significant task:
 - "Did I just spend meaningful time investigating something?"
 - "Would future-me benefit from having this documented?"
 - "Was the solution non-obvious from documentation alone?"
+- "Did I simulate before executing? If not, would it have helped?"
+- "What was my most expensive wrong path this session?"
 
-If yes to any, extract now.
+If yes to any of the first three, extract now.
 
 ## Integration with Other Skills
 
@@ -181,3 +227,4 @@ If yes to any, extract now.
 | three-layer-wisdom-extraction | Operates ABOVE claudeception — uses claudeception output as Layer 2 input |
 | skill-refresh | Maintains claudeception-created skills over time |
 | skill-creator | For formal eval/benchmark testing of skills |
+| agent-nurture-framework | Provides the Part 9 enhancement context for Self-Critique and Path Efficiency |
