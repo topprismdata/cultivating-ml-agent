@@ -1257,3 +1257,35 @@ ssh <user>@<gpu-server> "nvidia-smi"
 > 两个 P0 增强已落地，预计可减少 30% 的错误路径。
 >
 > 本文档本身就是一个活的文档——随着新项目和技能的积累，应持续更新。
+
+## 第十二章：Kaggle Store Sales 实战知识体系（2026年4月）
+
+通过 R10→R14 的系统性实验，积累了以下可复用知识：
+
+### 12.1 核心发现：Unified > Day-Specific
+
+| 方案 | LB | 知识 |
+|------|-----|------|
+| R10 day-specific | 0.39880 | baseline |
+| R11c 控制实验 | 0.39824 | postproc很重要 |
+| R12 +多级聚合 | 0.39874 | 聚合特征在day-specific下过拟合 |
+| R13 +YoY特征 | 0.39779 | 年度季节性有效 |
+| R14 统一模型 | 0.38850 | unified > day-specific（-0.00929）|
+
+**关键知识**：在丰富特征+中等预测窗口（7-30天）的场景下，统一模型（带target_day_offset特征）远优于day-specific模型。统一模型拥有16倍训练数据，且能跨天共享知识。
+
+### 12.2 提取的技能
+
+1. **rmsle-zero-threshold-asymmetry** — RMSLE的不对称惩罚特性
+2. **controlled-submission-experiment** — 受控变量实验方法论
+3. **yoy-364day-features** — 364天同期特征（364=52×7，保证星期对齐）
+4. **multi-level-aggregation-overfitting** — 多级聚合在day-specific下过拟合
+5. **unified-vs-day-specific-forecasting** — 统一模型vs按天建模的选择原则
+
+### 12.3 通用原则
+
+本次实验验证了以下从three-layer-wisdom-extraction提取的原则：
+
+- **Metric Asymmetry Principle**: RMSLE对false zero的惩罚是false small positive的32倍
+- **Controlled Variable Principle**: 多变量同时改变时，结果不可解读
+- **Metacognitive Timing Principle**: 利用计算等待时间做知识整理
