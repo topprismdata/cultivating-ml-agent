@@ -1,0 +1,16 @@
+# MLOps Framework Dependencies
+# Core
+pyyaml>=6.0
+pandas>=2.0
+numpy>=1.24
+
+# MLflow experiment tracking
+mlflow>=2.10
+
+# Gradient Boosting
+lightgbm>=4.0
+xgboost>=2.0
+catboost>=1.2
+
+# Submission
+kaggle>=1.6

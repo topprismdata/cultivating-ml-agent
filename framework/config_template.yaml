@@ -1,0 +1,42 @@
+# Competition Configuration Template
+# Copy to your competition root and fill in the values.
+# See docs/framework/config-spec.md for full specification.
+
+competition:
+  name: ""                    # Full competition name
+  slug: ""                    # URL slug (e.g., "h-and-m-personalized-fashion-recommendations")
+  url: ""                     # Kaggle competition URL
+  metric: ""                  # Primary metric name (e.g., "MAP@12", "RMSE", "balanced_accuracy")
+  metric_direction: "maximize" # maximize or minimize
+  task_type: "tabular"        # tabular|timeseries|recommendation|cv|nlp
+
+data:
+  train_file: "train.csv"
+  test_file: "test.csv"
+  target_col: null            # Target column name (null for recommendation tasks)
+  id_col: null                # ID column (e.g., "customer_id", "row_id")
+  submission_format: "csv"    # csv|space_separated_ids|...
+
+training:
+  n_folds: 5
+  random_state: 42
+  cv_strategy: "stratified"   # stratified|kfold|time_based|group
+
+mlflow:
+  experiment_name: ""         # Will be set from slug if empty
+  tracking_uri: "sqlite:///mlflow.db"
+
+submission:
+  max_per_day: 5              # Kaggle=5, Playground=10
+  validate_before_submit: true
+
+# Optional: Override default model parameters
+# models:
+#   lightgbm:
+#     objective: "regression"
+#     metric: "rmse"
+#     learning_rate: 0.05
+#   xgboost:
+#     objective: "reg:squarederror"
+#   catboost:
+#     iterations: 1000
