@@ -8,9 +8,17 @@ Based on 2 months of real-world experimentation with Claude Code, covering 13 ML
 
 ## Quick Start
 
+### For Humans
+
 1. Read the [main guide](docs/cultivating-ml-agent-expert.md) (1088 lines, ~30 min)
 2. Browse [example skills](skills/examples/) for concrete patterns
 3. Use [templates](templates/) to create your own skills
+
+### For AI Agents (Claude Code, etc.)
+
+1. Read [AGENTS.md](AGENTS.md) for autonomous ML workflow instructions
+2. Use `framework/` modules for structured pipeline (config, logging, validation, MLflow)
+3. Activate skills from `skills/examples/` when encountering matching problems
 
 ## Core Concepts
 
@@ -38,29 +46,34 @@ Study (Theory) → Verify (Notebook) → Apply (Competition) → Extract (Crysta
 ```
 cultivating-ml-agent/
 ├── README.md                    # This file
+├── AGENTS.md                    # Autonomous agent instructions
 ├── docs/
-│   └── cultivating-ml-agent-expert.md   # Main guide (1088 lines)
+│   ├── cultivating-ml-agent-expert.md   # Main guide (1088 lines)
+│   └── framework/                       # Framework documentation
+│       ├── config-spec.md               # Configuration specification
+│       ├── experiment-workflow.md        # Experiment workflow guide
+│       ├── mlops-pipeline.md            # MLOps pipeline design
+│       └── project-template.md          # Project template guide
+├── framework/                   # Reusable MLOps framework
+│   ├── config_template.yaml     # Competition config template
+│   ├── script_template.py       # Experiment script template (5-stage)
+│   ├── requirements.txt         # Framework dependencies
+│   └── src/                     # Python modules
+│       ├── config.py            # CompetitionConfig dataclass
+│       ├── pipeline/
+│       │   ├── mlflow_utils.py  # MLflow experiment tracking
+│       │   └── validate.py      # Data validation + evaluation gates
+│       └── utils/
+│           ├── logging_utils.py # ExperimentLogger
+│           ├── metrics.py       # Competition metrics
+│           ├── paths.py         # Directory resolution
+│           └── submission.py    # Submission validation
 ├── skills/
 │   └── examples/                # 19 real skills extracted from practice
 │       ├── claudeception/       # Auto skill extraction system
 │       ├── three-layer-wisdom-extraction/  # Wisdom abstraction
 │       ├── agent-nurture-framework/       # Nurture methodology
-│       ├── ts-forecasting-stale-lag-methodology/  # Time series master skill
-│       ├── ts-day-specific-forecasting/   # Day-specific forecasting
-│       ├── kaggle-competition-best-practices/     # Competition SOP
-│       ├── kaggle-top-performer-replication/      # Top solution replication
-│       ├── kaggle-data-format-first/              # Data format verification
-│       ├── kaggle-optimal-blending/               # 80/20 blending rule
-│       ├── ensemble-model-correlation-trap/       # Ensemble anti-pattern
-│       ├── model-ensemble/                        # Negative weight effect
-│       ├── ml-sweet-spot/                         # "More is not always better"
-│       ├── per-category-modeling-backfire/        # Per-category trap
-│       ├── domain-knowledge-constraints-trap/     # Domain knowledge trap
-│       ├── adversarial-validation-implementation/  # Correct AV implementation
-│       ├── tabular-polynomial-features/           # Polynomial breakthrough
-│       ├── spatiotemporal-graph-feature-engineering/  # Graph features
-│       ├── sc-tir-mathematical-reasoning/         # Math reasoning (SC-TIR)
-│       └── progressive-verification-debugging/    # Systematic debugging
+│       └── ... (see skills/examples/ for full list)
 └── templates/
     ├── bug-fix-skill.md          # Template for bug fix skills
     └── knowledge-skill.md        # Template for knowledge skills
@@ -93,6 +106,33 @@ The most important content is the **5 SOPs** in the main guide:
 3. **Skill Extraction SOP** — Automated knowledge crystallization via claudeception
 4. **Experiment Management SOP** — Reproducible iteration with naming conventions
 5. **Ensemble Learning SOP** — From correlation check to optimal blending
+
+## MLOps Framework
+
+The `framework/` directory provides reusable Python modules validated against real Kaggle competitions (H&M Recommendations LB 0.02368, S6E4 LB 0.98150).
+
+### Quick Integration
+
+```bash
+# Copy framework to your competition project
+cp -r framework/ /path/to/your-competition/
+
+# Edit config for your competition
+cp framework/config_template.yaml config.yaml
+```
+
+### Framework Components
+
+| Component | What It Does | Validated In |
+|-----------|-------------|--------------|
+| `CompetitionConfig` | Type-safe YAML config with CLI overrides | R27 (H&M) |
+| `ExperimentLogger` | Timestamped logging with metric formatting | R27, R18 (S6E4) |
+| `validate_pipeline()` | Data quality checks at stage boundaries | R27 |
+| `validate_features()` | Feature completeness + NaN/Inf detection | R27 |
+| `evaluation_gate()` | Regression prevention (block bad submissions) | R27 |
+| `start_experiment()` | MLflow context manager for experiment tracking | R27 |
+| `validate_and_save()` | Submission format validation | R27, R18 |
+| `get_submission_filename()` | Standardized naming convention | R27, R18 |
 
 ## Academic Alignment
 
