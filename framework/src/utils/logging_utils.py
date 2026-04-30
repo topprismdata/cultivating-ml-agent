@@ -40,10 +40,17 @@ class ExperimentLogger:
         if self.level == "DEBUG":
             print(self._format("DEBUG", msg), flush=True)
 
-    def metric(self, name: str, value: float, extra: str = "") -> None:
-        """Log a metric with consistent formatting."""
+    def metric(self, name: str, value, extra: str = "") -> None:
+        """Log a metric with consistent formatting.
+
+        Accepts float, int, or str values. Non-numeric values are logged
+        as-is without the .4f formatting.
+        """
         suffix = f" ({extra})" if extra else ""
-        print(self._format("METRIC", f"{name}: {value:.4f}{suffix}"), flush=True)
+        if isinstance(value, (int, float)):
+            print(self._format("METRIC", f"{name}: {value:.4f}{suffix}"), flush=True)
+        else:
+            print(self._format("METRIC", f"{name}: {value}{suffix}"), flush=True)
 
     def separator(self, title: str = "") -> None:
         """Print a visual separator."""

@@ -29,6 +29,7 @@ class DataConfig:
     submission_format: str = "csv"  # csv|space_separated_ids|...
     exclude_cols: list[str] = field(default_factory=list)
     sample_submission: str = "sample_submission.csv"
+    data_dir: Optional[str] = None  # Override: e.g., "data_raw" for flat layout
 
 
 @dataclass
@@ -179,6 +180,17 @@ class CompetitionConfig:
         return Path.cwd()
 
     def get_data_path(self, filename: str, subdir: str = "raw") -> Path:
+        """Resolve data file path.
+
+        Checks for data_raw/ (flat) layout first, then data/raw/ (nested).
+        Override by setting data_dir attribute.
+        """
+        if hasattr(self, 'data_dir') and self.data_dir:
+            return Path(self.data_dir) / filename
+        # Auto-detect: prefer data_raw/ if it exists
+        flat = self.project_root / "data_raw" / filename
+        if flat.parent.exists():
+            return flat
         return self.project_root / "data" / subdir / filename
 
     def get_output_path(self, filename: str, subdir: str = "submissions") -> Path:

@@ -15,14 +15,24 @@ Usage:
     python scripts/run_r{NN}_{name}.py --override validation.n_folds=3
 """
 import argparse
+import gc
 import sys
 import time
 from pathlib import Path
 
 # ---- Shared modules ----
+# IMPORTANT: sys.path ordering matters when local and shared src have same-named
+# files (e.g., config.py). Always load local config FIRST.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT.parent.parent / "src"))  # shared src/
-sys.path.insert(0, str(PROJECT_ROOT))                          # competition local
+
+# Option A: Framework src/ is inside this project (monorepo layout)
+SHARED_SRC = PROJECT_ROOT / "src"
+
+# Option B: Framework is in a sibling project (multi-project layout)
+# Uncomment and set the absolute path:
+# SHARED_SRC = Path("/absolute/path/to/shared/framework/src")
+
+sys.path.insert(0, str(SHARED_SRC))
 
 from config import CompetitionConfig, load_config
 from pipeline.validate import validate_pipeline, validate_features, evaluation_gate
@@ -39,6 +49,8 @@ OVERRIDES = {
 }
 
 RUN_NAME = "R{NN}_{name}"
+RANDOM_STATE = 42
+start_time = time.time()
 
 
 def parse_args():
@@ -77,9 +89,15 @@ def setup(args):
 def load_data(cfg, log):
     """Load and return train, test, sample_submission."""
     log.section("Stage 1: Data Loading")
+    import numpy as np
     import pandas as pd
 
+    np.random.seed(RANDOM_STATE)
+
+    # Use cfg.get_data_path() or override for non-standard layouts:
+    # data_dir = cfg.project_root / "data_raw"  # If data is in data_raw/ not data/raw/
     data_dir = cfg.project_root / "data" / "raw"
+
     train = pd.read_csv(data_dir / cfg.data.train_file)
     test = pd.read_csv(data_dir / cfg.data.test_file)
     sample_sub = pd.read_csv(data_dir / cfg.data.sample_submission)
@@ -88,10 +106,9 @@ def load_data(cfg, log):
     log.data_shape("test", test)
     log.data_shape("sample_sub", sample_sub)
 
-    # Pipeline validation
     validate_pipeline(
         train, test, cfg,
-        stage="after_loading",
+        stage="after_data_loading",
         target_col=cfg.data.target_col,
     )
 
@@ -107,7 +124,8 @@ def engineer_features(train, test, cfg, log):
     feature_cols = []
 
     # --- Your features here ---
-    # from features.encoding import target_encode, frequency_encode
+    # Example:
+    # from features.encoding import target_encode
     # train, test = target_encode(train, test, col="category", target=cfg.data.target_col)
     # feature_cols.append("te_category")
 
@@ -117,12 +135,9 @@ def engineer_features(train, test, cfg, log):
         stage="after_feature_engineering",
         target_col=cfg.data.target_col,
     )
-
-    # --- Feature validation ---
     validate_features(train, feature_cols, stage="train_features")
-    validate_features(test, feature_cols, stage="test_features")
 
-    log.info(f"Feature count: {len(feature_cols)}")
+    log.info(f"  Feature count: {len(feature_cols)}")
     return train, test, feature_cols
 
 
@@ -130,46 +145,17 @@ def engineer_features(train, test, cfg, log):
 # Stage 3: Model Training
 # ===========================================================================
 def train_model(train, test, feature_cols, cfg, log):
-    """Train model with cross-validation, return (models, oof_preds, cv_metrics)."""
+    """Train model with CV and return (model, oof_preds, test_preds, cv_metrics)."""
     log.section("Stage 3: Model Training")
-    import numpy as np
 
     # --- Your model training here ---
-    # Example with LightGBM + K-Fold:
+    # Example (LightGBM with 5-fold CV):
+    #
     # import lightgbm as lgb
-    # from sklearn.model_selection import KFold
+    # from sklearn.model_selection import cross_val_score
     #
-    # kf = KFold(n_splits=cfg.validation.n_folds, shuffle=True, random_state=cfg.experiment.random_state)
-    # oof_preds = np.zeros(len(train))
-    # test_preds = np.zeros(len(test))
-    # models = []
-    # fold_scores = []
-    #
-    # metric_fn = get_metric(cfg.metric)
-    #
-    # for fold, (trn_idx, val_idx) in enumerate(kf.split(train)):
-    #     X_trn = train.iloc[trn_idx][feature_cols]
-    #     y_trn = train.iloc[trn_idx][cfg.data.target_col]
-    #     X_val = train.iloc[val_idx][feature_cols]
-    #     y_val = train.iloc[val_idx][cfg.data.target_col]
-    #
-    #     model = lgb.LGBMRegressor(**cfg.model.lgb_params)
-    #     model.fit(X_trn, y_trn, eval_set=[(X_val, y_val)],
-    #               callbacks=[lgb.early_stopping(50), lgb.log_evaluation(100)])
-    #
-    #     oof_preds[val_idx] = model.predict(X_val)
-    #     test_preds += model.predict(test[feature_cols]) / cfg.validation.n_folds
-    #     models.append(model)
-    #
-    #     fold_score = metric_fn(y_val, oof_preds[val_idx])
-    #     fold_scores.append(fold_score)
-    #     log.metric(f"fold_{fold}", fold_score)
-    #
-    # cv_metrics = {
-    #     "cv_mean": np.mean(fold_scores),
-    #     "cv_std": np.std(fold_scores),
-    # }
-    # return models, oof_preds, test_preds, cv_metrics
+    # model = lgb.LGBMRegressor(**cfg.model.lgb_params)
+    # ...
 
     raise NotImplementedError("Implement your model training")
 
@@ -177,18 +163,18 @@ def train_model(train, test, feature_cols, cfg, log):
 # ===========================================================================
 # Stage 4: Prediction & Submission
 # ===========================================================================
-def generate_submission(test_preds, sample_sub, cfg, log):
-    """Generate submission with validation."""
-    log.section("Stage 4: Submission")
+def generate_submission(test_preds, test, sample_sub, cfg, log):
+    """Generate predictions and save submission."""
+    log.section("Stage 4: Prediction & Submission")
 
-    import pandas as pd
-
+    # --- Build submission ---
     # submission = pd.DataFrame({
     #     sample_sub.columns[0]: test[cfg.data.id_col].values,
     #     sample_sub.columns[1]: test_preds,
     # })
-    #
-    # output_path = get_submission_filename(RUN_NAME, cfg.project_root / "outputs" / "submissions")
+
+    # --- Validate & Save ---
+    # output_path = get_submission_filename(RUN_NAME, PROJECT_ROOT / "outputs" / "submissions")
     # validate_and_save(submission, sample_sub, output_path)
     # return output_path
 
@@ -196,19 +182,15 @@ def generate_submission(test_preds, sample_sub, cfg, log):
 
 
 # ===========================================================================
-# Main Pipeline
+# Main
 # ===========================================================================
 def main():
     args = parse_args()
-    t0 = time.time()
-
-    # Stage 0: Config
     cfg, log = setup(args)
+
     log.separator(f"{RUN_NAME}: {cfg.name}")
-    log.info(f"Metric: {cfg.metric} ({cfg.metric_direction})")
-    log.info(f"CV: {cfg.validation.strategy}, Folds: {cfg.validation.n_folds}")
-    if args.smoke:
-        log.info("*** SMOKE TEST MODE ***")
+    log.info(f"  Metric: {cfg.metric} ({cfg.metric_direction})")
+    log.info(f"  CV: {cfg.validation.strategy}, folds: {cfg.validation.n_folds}")
 
     # Stage 1: Load
     train, test, sample_sub = load_data(cfg, log)
@@ -216,41 +198,34 @@ def main():
     # Stage 2: Features
     train, test, feature_cols = engineer_features(train, test, cfg, log)
 
-    # Stage 3-4: Train + Submit (wrapped in MLflow context)
+    # Stage 3: Train
+    # model, oof, test_preds, cv_metrics = train_model(train, test, feature_cols, cfg, log)
+
+    # Stage 4: Submit
+    # output_path = generate_submission(test_preds, test, sample_sub, cfg, log)
+
+    # Stage 5: Evaluation gate
+    # evaluation_gate(
+    #     cv_score=cv_metrics["cv_mean"],
+    #     cv_std=cv_metrics.get("cv_std", 0.0),
+    #     baseline_score=0.0,  # Set from previous best
+    #     metric_direction=cfg.metric_direction,
+    # )
+
+    # MLflow tracking
     if not args.no_mlflow:
         with start_experiment(RUN_NAME, cfg) as ctx:
-            # Train
-            # models, oof_preds, test_preds, cv_metrics = train_model(
-            #     train, test, feature_cols, cfg, log
-            # )
-
-            # Log to MLflow
-            # ctx.log_params({"model": cfg.model.default, **cfg.model.lgb_params})
+            ctx.log_params({"model": cfg.model.default})
             # ctx.log_metrics(cv_metrics)
             # ctx.log_features(feature_cols)
-            # ctx.log_oof(oof_preds, train[cfg.data.id_col].values, cfg.data.target_col)
-            # ctx.log_feature_importance(models[0], feature_cols)
-
-            # Evaluation gate
-            # evaluation_gate(
-            #     cv_metrics["cv_mean"], cv_metrics["cv_std"],
-            #     metric_direction=cfg.metric_direction,
-            # )
-
-            # Submit
-            # output_path = generate_submission(test_preds, sample_sub, cfg, log)
             # ctx.log_submission(str(output_path))
+            log.info(f"  MLflow run_id: {ctx.run_id}")
 
-            log.info(f"MLflow run_id: {ctx.run_id}")
-    else:
-        log.info("MLflow logging disabled (--no-mlflow)")
-        # models, oof_preds, test_preds, cv_metrics = train_model(...)
-        # output_path = generate_submission(test_preds, sample_sub, cfg, log)
-
-    # Summary
-    elapsed = time.time() - t0
-    log.separator(f"{RUN_NAME} Complete ({elapsed:.0f}s)")
-    # log.metric("cv_mean", cv_metrics["cv_mean"])
+    elapsed = time.time() - start_time
+    log.separator(f"{RUN_NAME} Complete")
+    log.info(f"  Elapsed: {elapsed:.0f}s")
+    # log.metric("CV", cv_metrics["cv_mean"])
+    gc.collect()
 
 
 if __name__ == "__main__":

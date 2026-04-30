@@ -196,7 +196,7 @@ class EvaluationGateError(Exception):
 
 def evaluation_gate(
     cv_score: float,
-    cv_std: float,
+    cv_std: Optional[float] = None,
     baseline_score: Optional[float] = None,
     metric_direction: str = "maximize",
     min_improvement: float = 0.0,
@@ -209,7 +209,7 @@ def evaluation_gate(
 
     Args:
         cv_score: Mean CV score from the experiment.
-        cv_std: Standard deviation of CV scores.
+        cv_std: Standard deviation of CV scores. None or 0.0 for single-fold.
         baseline_score: Previous best score to beat (optional).
         metric_direction: "maximize" or "minimize".
         min_improvement: Minimum improvement over baseline (absolute).
@@ -224,7 +224,9 @@ def evaluation_gate(
     reasons = []
 
     # Stability check: CV std should be reasonable
-    if abs(cv_score) > 0:
+    if cv_std is None:
+        cv_std = 0.0
+    if abs(cv_score) > 0 and cv_std > 0:
         std_ratio = cv_std / abs(cv_score)
         if std_ratio > max_cv_std_ratio:
             reasons.append(

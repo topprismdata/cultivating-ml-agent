@@ -16,6 +16,8 @@ data:
   target_col: null            # Target column name (null for recommendation tasks)
   id_col: null                # ID column (e.g., "customer_id", "row_id")
   submission_format: "csv"    # csv|space_separated_ids|...
+  data_dir: null              # Override: set to "data_raw" if data is flat (no raw/ subdir)
+  # NOTE: If data_dir is null, get_data_path() auto-detects data_raw/ vs data/raw/
 
 training:
   n_folds: 5
