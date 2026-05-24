@@ -276,8 +276,10 @@ A filesystem-based knowledge base that persists across agent sessions. Any agent
 ### Structure
 
 ```
-~/obsidian/ml-agent-memory/
-├── dashboard.md          # Entry point — quick queries by decision point
+~/obsidian/ml-agent-memory/              # home-relative, works on all Macs
+# OR for iCloud sync (same vault, different absolute path):
+#   ~/Library/Mobile Documents/iCloud~md~obsidian/Documents/06_ML_Agent_Memory/
+# Agents: use whichever path resolves on the running system.
 ├── competitions/         # Per-competition structured records
 │   ├── s6e5.md           # F1 Pit Stop — best LB 0.9526
 │   └── s6e4.md           # Irrigation — best LB 0.98150
