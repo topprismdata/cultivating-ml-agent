@@ -124,23 +124,57 @@ Every `run_r{NN}` must have:
 - If CV doesn't improve, don't submit (wastes daily quota)
 - Monitor CV-LB gap: if gap grows, you're overfitting
 
-### Rule 4: Extract Knowledge After Breakthroughs
+### Rule 4: Extract + Persist Knowledge
 
-After any non-trivial finding, run `/claudeception` to extract a skill:
-- Bug fixes → bug-fix-skill template
-- New techniques → knowledge-skill template
-- Anti-patterns → warn-style skill
+After any non-trivial finding, run `/claudeception` to extract a skill AND persist to the Obsidian Memory Vault:
 
-### Rule 5: Document Everything
+```python
+# After experiment completes, immediately persist:
+# 1. Read the vault to know current state:
+with open("~/obsidian/ml-agent-memory/dashboard.md") as f:
+    print(f.read())
 
-Each competition gets a `README.md` with:
+# 2. Update competition record:
+#    → Append experiment result to ~/obsidian/ml-agent-memory/competitions/{name}.md
+
+# 3. Update principles if cross-domain insight found:
+#    → Edit ~/obsidian/ml-agent-memory/principles/16-principles.md
+
+# 4. Update skills if anti-pattern discovered:
+#    → Edit ~/obsidian/ml-agent-memory/skills/{skill-name}.md
+```
+
+**Anti-patterns to record immediately** (these save hours of wasted effort):
+- "净化后 CV 没改善" → adversarial-validation.md
+- "多模型 ensemble 相关性 >0.97" → ensemble_method.md
+- "lag feature 全 NaN 导致低预测" → time_series.md
+
+### Rule 5: Consult Memory Before Acting
+
+At these decision points, read the vault FIRST before writing any code:
+
+| Trigger | File to Read | What to Look For |
+|---------|-------------|-----------------|
+| Starting a new competition | `dashboard.md` | Cross-competition patterns, highest ROI techniques |
+| CV-LB gap > 0.01 | `skills/adversarial-validation.md` | AUC≈0.50 → stop purification, try GroupKFold |
+| Feature engineering | `dashboard.md` | External data fusion ROI ~7x over self-training |
+| Ensemble plateau | `principles/16-principles.md` | Quality over quantity: 4-6 sources > 23 sources |
+| Time series lag features | `skills/time_series.md` | `preds.mean()/train.mean()` diagnostic first |
+
+### Rule 6: One Change Per Experiment — Document the Outcome
+
+After experiment, record in `~/obsidian/ml-agent-memory/experiments/experiments.md`:
 
 ```markdown
-| Version | CV | LB | Key Technique |
-|---------|-----|-----|---------------|
-| R01 | — | 0.xxx | Baseline |
-| R02 | — | 0.xxx | Target encoding |
+### v{NN}_{name}
+- **CV/LB**: 0.xxxx / 0.xxxx
+- **做法**: [ONE sentence, what changed]
+- **诊断**: [why it worked or didn't]
+- **关键洞察**: `short_slug_name`
+- **标签**: [comma-separated]
 ```
+
+Format follows `experiment_log.jsonl` conventions so both machine-readable (JSONL) and human-readable (MD).
 
 ## Competition-Specific Guidance
 
