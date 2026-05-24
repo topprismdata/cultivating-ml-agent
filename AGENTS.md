@@ -235,6 +235,76 @@ After any submission:
 3. If gap > 5%, investigate overfitting
 4. Update README with results
 
+## Obsidian Memory Vault Pattern
+
+A filesystem-based knowledge base that persists across agent sessions. Any agent can read it to acquire accumulated experience from previous sessions.
+
+### Structure
+
+```
+~/obsidian/ml-agent-memory/
+├── dashboard.md          # Entry point — quick queries by decision point
+├── competitions/         # Per-competition structured records
+│   ├── s6e5.md           # F1 Pit Stop — best LB 0.9526
+│   └── s6e4.md           # Irrigation — best LB 0.98150
+├── experiments/          # Experiment timeline with results
+│   └── experiments.md    # 28 experiments, cross-competition patterns
+├── principles/          # Layer 3 universal principles (cross-domain)
+│   └── 16-principles.md # e.g. "Work Smart > Hard Work", "Local Optimum Trap"
+├── skills/              # Core skill decision frameworks
+│   └── adversarial-validation.md  # Decision tree + AUC interpretation
+└── memory/              # (optional, agent-only dir, gitignored)
+    ├── experiment_log.jsonl
+    └── principles_index.json
+```
+
+### Agent Query Pattern
+
+At any decision point, an agent can read relevant files:
+
+```python
+# When starting a new competition:
+with open("~/obsidian/ml-agent-memory/dashboard.md") as f:
+    insights = f.read()
+
+# When diagnosing CV-LB gap:
+with open("~/obsidian/ml-agent-memory/competitions/s6e5.md") as f:
+    competition_record = f.read()
+
+# When deciding strategy:
+with open("~/obsidian/ml-agent-memory/principles/16-principles.md") as f:
+    principles = f.read()
+```
+
+### When to Update Memory
+
+After completing an experiment or finding a breakthrough:
+
+1. **Experiments**: Append to `experiments/experiments.md` with CV/LB, key changes, key insight
+2. **Principles**: If finding transfers across domains, add to `principles/16-principles.md`
+3. **Competition record**: Update `competitions/{name}.md` with latest version and findings
+4. **Skills**: If anti-pattern discovered, add/update `skills/{skill-name}.md`
+
+### Quick Reference: Decision → File Mapping
+
+| Decision Point | File | Key Content |
+|---------------|------|-------------|
+| Adversarial validation | `skills/adversarial-validation.md` | AUC 0.50 = stop purification |
+| CV strategy | `principles/16-principles.md` P16 | GroupKFold when AUC≈0.50 |
+| Feature engineering | `dashboard.md` | External data fusion highest ROI |
+| Ensemble failure | `skills/ensemble_method.md` | Model correlation trap |
+| Time series lag | `skills/time_series.md` | `preds.mean()/train.mean()` diagnostic |
+
+### Cross-Competition Patterns (from experiments.md)
+
+| Technique | Effective For | Effect | Condition |
+|-----------|-------------|--------|-----------|
+| Pairwise target encoding | s6e4, s6e5 | +0.001~+0.002 | categorical × numerical |
+| External data fusion | s6e4, s6e5 | +0.001~+0.007 | Same target definition |
+| Pseudo-labeling | s6e4 | +0.001 single round, -0.001 iterative | Threshold ≥0.90 |
+| Polynomial features | House Prices | +0.016 (small dataset) | Rows < 10K |
+| Adversarial purification | s6e5 | No benefit if AUC≈0.50 | Check first before filtering |
+
 ## Resources
 
 - **Main guide**: `docs/cultivating-ml-agent-expert.md` (1088 lines)
@@ -243,3 +313,4 @@ After any submission:
 - **Experiment workflow**: `docs/framework/experiment-workflow.md`
 - **Project template**: `docs/framework/project-template.md`
 - **Skill templates**: `templates/bug-fix-skill.md`, `templates/knowledge-skill.md`
+- **Memory vault**: `~/obsidian/ml-agent-memory/` (see Obsidian Memory Vault Pattern above)
