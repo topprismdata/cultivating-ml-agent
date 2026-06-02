@@ -19,6 +19,7 @@ Based on 2 months of real-world experimentation with Claude Code, covering 13 ML
 1. Read [AGENTS.md](AGENTS.md) for autonomous ML workflow instructions
 2. Use `framework/` modules for structured pipeline (config, logging, validation, MLflow)
 3. Activate skills from `skills/examples/` when encountering matching problems
+4. **New**: Try [`ml-agent-code-template/`](ml-agent-code-template/) for a ready-to-use Claude Code setup with auto-activation, cross-model review (Antigravity/Gemini/Codex), and memory health checks. Includes 9 hooks, 6 commands, 2 agents, and 4 skills validated on 8 MLE-Bench competitions (6 Gold, 2 Silver).
 
 ## Core Concepts
 
