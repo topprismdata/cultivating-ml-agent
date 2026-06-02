@@ -1,0 +1,85 @@
+{
+  "version": "1.0.0",
+  "description": "Maps prompt patterns to skills for auto-activation. Read by UserPromptSubmit hook (skill_activation_hook.sh).",
+  "rules": [
+    {
+      "id": "dead-end-check",
+      "patterns": [
+        "\\b(try|test|experiment|attempt|explore)\\b",
+        "\\bnew\\s+(model|approach|method|technique|strategy|direction|feature)\\b",
+        "\\b(can|could|should)\\s+we\\b",
+        "\\b(what\\s+if|let'?s|how\\s+about)\\b"
+      ],
+      "skill": "check-dead-ends",
+      "reason": "Any new direction may have known dead ends. Always check first.",
+      "priority": 10
+    },
+    {
+      "id": "stacking-ceiling",
+      "patterns": [
+        "\\b(stack|stack\\s+model|ensemble|blend|meta-?learner)\\b",
+        "\\b(base\\s+model|correlation|matrix)\\b",
+        "\\b(0\\.99|0\\.995|0\\.997)\\b"
+      ],
+      "skill": "stacking-ceiling",
+      "reason": "If at stacking ceiling, only new features break it. Check before tuning.",
+      "priority": 8
+    },
+    {
+      "id": "feature-engineering-roi",
+      "patterns": [
+        "\\b(feature|engineer|engineer\\s+feature|featuriz|featuris)\\b",
+        "\\b(hash|encoding|target-?encoding|ordinal|n-?gram)\\b",
+        "\\b(stop|plateau|ceiling|converge|stuck)\\b"
+      ],
+      "skill": "feature-engineering-roi",
+      "reason": "When models correlate > 0.93, only new features break the ceiling.",
+      "priority": 7
+    },
+    {
+      "id": "cv-strategy",
+      "patterns": [
+        "\\b(cv|cross-?validation|cross-?valid|k-?fold|stratified|group-?fold)\\b",
+        "\\b(time-?series|group|temporal|split|fold)\\b",
+        "\\b(leak|leakage|overlap)\\b"
+      ],
+      "skill": "cv-strategy",
+      "reason": "Wrong CV strategy = wrong model selection. Match CV to data structure.",
+      "priority": 6
+    },
+    {
+      "id": "external-data-fusion",
+      "patterns": [
+        "\\b(external|3rd-?party|third-?party|outside|auxiliary|aux)\\s+(data|dataset|api|source)\\b",
+        "\\b(pre-?trained|pretrain|huggingface|kaggle\\s+dataset)\\b",
+        "\\b(roi|impact|biggest\\s+single|highest\\s+roi)\\b"
+      ],
+      "skill": "external-data-fusion",
+      "reason": "External data has 7x ROI vs hyperparameter tuning. Check before tuning.",
+      "priority": 5
+    },
+    {
+      "id": "local-optimum-trap",
+      "patterns": [
+        "\\b(stuck|plateau|ceiling|converge|same\\s+(score|value|auc))\\b",
+        "\\b(didn'?t\\s+work|no\\s+improve|no\\s+gain|no\\s+difference)\\b",
+        "\\b(tune|hyperparam|tuning|tune\\s+again|more\\s+seeds)\\b"
+      ],
+      "skill": "local-optimum-trap",
+      "reason": "If 3 attempts yielded <0.0001 improvement, pivot. Don't tune the 4th.",
+      "priority": 9
+    }
+  ],
+  "global_check": {
+    "id": "memory-index",
+    "skill": "memory-index-reader",
+    "reason": "Always read memory/MEMORY.md at session start to know what context exists.",
+    "priority": 1,
+    "run_on_first_prompt": true
+  },
+  "ignore_patterns": [
+    "^\\s*$",
+    "^\\s*[#/]\\s*",
+    "^\\s*(hi|hello|thanks|thank\\s+you|ok|okay)\\s*[!.\\s]*$"
+  ]
+}

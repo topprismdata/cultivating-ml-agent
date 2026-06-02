@@ -1,0 +1,43 @@
+---
+name: <skill-name>
+description: <one-line — what this skill does>
+type: <learned|feedback|reference>
+---
+
+# <Skill Title>
+
+> When to use: <specific trigger conditions>
+
+## The Rule
+
+<One sentence: what this skill enforces>
+
+## Why
+
+<Evidence: where this was learned, what experiments confirmed it>
+
+## How to Apply
+
+```
+1. Step 1
+2. Step 2
+3. Step 3
+```
+
+## Code Example
+
+```python
+# Minimal example
+def apply_skill(data):
+    ...
+```
+
+## Anti-Patterns
+
+- ❌ Don't do X
+- ❌ Don't do Y
+
+## Related
+
+- <link to related skill 1>
+- <link to related skill 2>
