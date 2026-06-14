@@ -5,6 +5,10 @@ description: |
   Use when: (1) Re-ranking gives unexpected results, (2) Simple average blending
   underperforms, (3) Single model dominates ensemble. Avoids the trap of
   100% re-ranking or equal-weight ensembles.
+  **UPDATED 2026-06-14**: Added asymmetric-blending principle (30/70 rule)
+  for general tabular ensembles. When one model family dominates (e.g., CatBoost
+  in Spaceship Titanic 0.8124 OOF acc), weight it higher than other families.
+  Validated: 30% Silver + 70% Top-5 = 0.8132 OOF (best on SST V3).
 ---
 
 # Kaggle Optimal Blending: The 80/20 Rule
