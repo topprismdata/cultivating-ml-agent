@@ -9,8 +9,10 @@ description: |
   unexpected results at your scale, (7) Combining different feature engineering approaches.
   Covers OOF-LB gap analysis, overfitting detection, ensemble sweet spots,
   research claim validation, and feature combination incompatibility.
-  **UPDATED 2026-02-27**: Added feature combination incompatibility - combining
-  different feature types can hurt performance due to conflicting signals.
+  **UPDATED 2026-06-14**: Added CatBoost-First evidence (Spaceship Titanic)
+  and AutoGluon-First comparison (House Prices V18 0.1194 vs AutoGluon 0.1180).
+  5-variant CatBoost ensemble is the sweet spot for manual GBDT work.
+  AutoGluon 5-15 min should be the first step, not the last.
 ---
 
 # ML Sweet Spot Principle: "过犹不及" (More is Not Always Better)
