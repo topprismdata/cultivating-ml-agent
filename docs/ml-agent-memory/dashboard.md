@@ -15,11 +15,14 @@ timestamp: 2026-06-15T10:05:55Z
 ```
 ~/obsidian/ml-agent-memory/
 ├── dashboard.md          # 本文件 — 快速查询入口
-├── competitions/         # 7 个竞赛的结构化记录
+├── competitions/         # 3 个竞赛的结构化记录（s6e2/s6e4/s6e5）
 ├── experiments/          # 28 条实验记录（时间线）
-├── principles/           # 16 条 Layer 3 通用原则
-└── skills/              # 5 项核心技能的决策框架
+├── lessons/              # 7 条单场教训（按比赛分组）
+└── skills/               # 2 项核心技能的决策框架
 ```
+
+📊 **可视化**: 运行 `enrichment-agent visualize --bundle . --out viz.html` 生成 12 nodes / 35 edges 图谱。
+📄 **OKF 迁移报告**: [docs/okf-migration-report.md](../okf-migration-report.md)
 
 ## 快速查询
 
