@@ -39,9 +39,10 @@ timestamp: 2026-06-15T10:05:55Z
 - 模型相关性 > 0.97 → [16 条 Layer 3 原则](16-principles.md) → signal_dilution
 
 ### 浏览子目录
-- [competitions/](competitions/index.md) — 竞赛结构化记录
+- [competitions/](competitions/index.md) — 竞赛结构化记录（含 s6e2/s6e4/s6e5）
 - [experiments/](experiments/index.md) — 实验时间线
 - [skills/](skills/index.md) — 技能决策框架
+- [lessons/](lessons/index.md) — 单场比赛发现的具体教训
 
 ## 最新发现（v16 实验）
 
