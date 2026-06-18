@@ -1,3 +1,11 @@
+---
+type: Experiment Index
+title: 实验记录总览
+description: '28 条实验记录时间线汇总（来自 experiment_log.jsonl）。'
+tags: [experiment, timeline, s6e5]
+timestamp: 2026-06-15T10:05:55Z
+---
+
 # 实验记录总览
 
 > 共 28 次实验，来源: `experiment_log.jsonl`
@@ -131,5 +139,11 @@
 - 条件: 高置信度阈值 (≥0.90)，单轮
 
 ---
+
+## 关联
+
+- 主页: [ML Agent Memory Dashboard](../dashboard.md)
+- 原则集: [16 条 Layer 3 原则](../16-principles.md)
+- 案例: [s6e5 — F1 停车预测](../competitions/s6e5.md) | [s6e4 — 灌溉预测](../competitions/s6e4.md)
 
 更新: 2026-05-24 | 实验数: 28

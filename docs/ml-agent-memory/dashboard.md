@@ -1,3 +1,11 @@
+---
+type: Dashboard
+title: ML Agent Memory Dashboard
+description: 'ml-agent-memory 的快速查询入口，按竞赛/原则/诊断信号分类。'
+tags: [dashboard, index, navigation]
+timestamp: 2026-06-15T10:05:55Z
+---
+
 # ML Agent Memory Dashboard
 
 > 可被所有 agent 通过文件系统直接读取的经验知识库
@@ -7,28 +15,37 @@
 ```
 ~/obsidian/ml-agent-memory/
 ├── dashboard.md          # 本文件 — 快速查询入口
-├── competitions/         # 7 个竞赛的结构化记录
+├── competitions/         # 3 个竞赛的结构化记录（s6e2/s6e4/s6e5）
 ├── experiments/          # 28 条实验记录（时间线）
-├── principles/           # 16 条 Layer 3 通用原则
-└── skills/              # 5 项核心技能的决策框架
+├── lessons/              # 7 条单场教训（按比赛分组）
+└── skills/               # 2 项核心技能的决策框架
 ```
+
+📊 **可视化**: 运行 `enrichment-agent visualize --bundle . --out viz.html` 生成 12 nodes / 35 edges 图谱。
+📄 **OKF 迁移报告**: [docs/okf-migration-report.md](../okf-migration-report.md)
 
 ## 快速查询
 
 ### 按竞赛查实验
-- `competitions/s6e5.md` — F1 停车预测，最佳 LB 0.9526
-- `competitions/s6e4.md` — 灌溉预测，最佳 LB 0.98150（外部预测主导）
+- [s6e5 — F1 停车预测](competitions/s6e5.md) — 最佳 LB 0.9526
+- [s6e4 — 灌溉预测](competitions/s6e4.md) — 最佳 LB 0.98150（外部预测主导）
 
 ### 按决策点查原则
-- **特征工程策略** → `principles/16-principles.md` → ground_truth_encoding, complexity_budget
-- **CV 策略** → `principles/16-principles.md` → distribution_mismatch, adversarial_validation_limitation
-- **集成方法** → `principles/16-principles.md` → quality_over_quantity, consensus_anchor
-- **外部数据融合** → `principles/16-principles.md` → work_smart_not_hard, leverage_principle
+- **特征工程策略** → [16 条 Layer 3 原则](16-principles.md) → ground_truth_encoding, complexity_budget
+- **CV 策略** → [16 条 Layer 3 原则](16-principles.md) → distribution_mismatch, adversarial_validation_limitation
+- **集成方法** → [16 条 Layer 3 原则](16-principles.md) → quality_over_quantity, consensus_anchor
+- **外部数据融合** → [16 条 Layer 3 原则](16-principles.md) → work_smart_not_hard, leverage_principle
 
 ### 按诊断信号查
-- CV-LB gap > 0.01 → `skills/adversarial-validation.md` → AUC≈0.50 → 停止净化
-- lag feature 全 NaN → `principles/16-principles.md` → `preds.mean()/train.mean()`
-- 模型相关性 > 0.97 → `principles/16-principles.md` → signal_dilution
+- CV-LB gap > 0.01 → [adversarial-validation skill](skills/adversarial-validation.md) → AUC≈0.50 → 停止净化
+- lag feature 全 NaN → [16 条 Layer 3 原则](16-principles.md) → `preds.mean()/train.mean()`
+- 模型相关性 > 0.97 → [16 条 Layer 3 原则](16-principles.md) → signal_dilution
+
+### 浏览子目录
+- [competitions/](competitions/index.md) — 竞赛结构化记录（含 s6e2/s6e4/s6e5）
+- [experiments/](experiments/index.md) — 实验时间线
+- [skills/](skills/index.md) — 技能决策框架
+- [lessons/](lessons/index.md) — 单场比赛发现的具体教训
 
 ## 最新发现（v16 实验）
 

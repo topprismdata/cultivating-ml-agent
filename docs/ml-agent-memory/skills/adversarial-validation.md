@@ -1,3 +1,11 @@
+---
+type: Skill
+title: Adversarial Validation 决策框架
+description: 'Adversarial Validation 决策框架：识别与测试集最相似的训练样本。'
+tags: [skill, adversarial-validation, diagnostic]
+timestamp: 2026-06-15T10:05:55Z
+---
+
 # Adversarial Validation 决策框架
 
 > 来源: `adversarial-validation-implementation` skill + v16 实验教训
@@ -109,6 +117,12 @@ Cumulative_Degradation: 336
 TyreLife: 317
 ```
 → 这些特征在 train/test 分布差异最大
+
+## 关联
+
+- 主页: [ML Agent Memory Dashboard](../dashboard.md)
+- 原则集: [16 条 Layer 3 原则](../16-principles.md) → adversarial_validation_limitation
+- 经验证据: [s6e5 — F1 停车预测（净化不改善）](../competitions/s6e5.md)
 
 ---
 

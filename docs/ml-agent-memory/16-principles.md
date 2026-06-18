@@ -1,3 +1,11 @@
+---
+type: Principle Set
+title: 16 条 Layer 3 通用原则
+description: '16 Layer-3 通用原则，来自 28 次实验、7 个 Kaggle 竞赛、跨 3 层抽象提炼。'
+tags: [principle, wisdom, cross-domain]
+timestamp: 2026-06-15T10:05:55Z
+---
+
 # 16 条 Layer 3 通用原则
 
 > 来自 28 次实验、7 个 Kaggle 竞赛、跨 3 层抽象提炼
@@ -144,5 +152,12 @@
 | 时间序列 | distribution_mismatch, metric_asymmetry, diagnosis_first |
 
 ---
+
+## 关联
+
+- 主页: [ML Agent Memory Dashboard](dashboard.md)
+- 实验证据: [experiments 时间线](experiments/experiments.md)
+- 案例应用: [s6e4 — 灌溉预测](competitions/s6e4.md) | [s6e5 — F1 停车预测](competitions/s6e5.md)
+- 相关技能: [adversarial-validation](skills/adversarial-validation.md)
 
 更新: 2026-05-24 | 来源: 28 次实验 | 抽象层级: Layer 3
