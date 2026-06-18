@@ -110,8 +110,33 @@ head -3 sample_submission.csv
 - Values are floats in [0, 1] → metric is `log_loss`/probability calibration → submit probabilities
 - Values are integers in [0, 9] → `quadratic_kappa`/ordinal → submit integers
 - Values are floats with no obvious range → regression, submit raw predictions
+- **Values are strings like `Low/Medium/High` → multi-class classification with `accuracy`/`balanced_accuracy` etc. → submit hard labels, NOT probability matrix (S6E4 trap!)**
 
 **Always cross-check the metric on the competition's Overview page, not the sample file.**
+
+### S6E4 mirror bug (the inverse of S6E2)
+
+The S6E2 bug was "AUC wanted proba, I sent 0/1".
+The S6E4 bug is the **mirror**: **accuracy wanted hard labels, I sent a probability matrix**.
+
+S6E4 sample_submission.csv:
+```
+id,Irrigation_Need
+630000,Low
+630001,Low
+```
+
+If you submit:
+```csv
+id,High,Low,Medium
+630000,0.001,0.999,0.000
+```
+
+Kaggle will reject it (SUBMISSION ERROR) because columns don't match sample.
+
+**Fix**: use `predictor.predict(test)` (hard labels) instead of `predict_proba()` for accuracy-style metrics. Or argmax the probability columns to recover labels.
+
+**Both bugs are caught by a 30-line GSD verifier** that compares your submission columns to `sample_submission.csv` columns. See `gsd-loop-engineering` skill for the full workflow.
 
 ## Verification
 
