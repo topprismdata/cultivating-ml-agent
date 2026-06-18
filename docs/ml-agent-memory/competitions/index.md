@@ -16,6 +16,7 @@ timestamp: 2026-06-18T00:00:00Z
 * [s6e2 — Heart Disease](s6e2.md) — Private LB 0.95510 (AutoGluon-first rerun)
 * [s6e4 — Irrigation Prediction](s6e4.md) — Private LB 0.98150
 * [s6e5 — F1 Pit Stop Prediction](s6e5.md) — Private LB 0.9526
+* [s6e6 — Stellar Class Prediction](s6e6.md) — **进行中**, best schema8 single Public LB 0.96719
 
 ### 时间序列比赛
 * [store-sales — RMSLE](store-sales.md) — Public LB 1.90248 (v3 ffill 修复)

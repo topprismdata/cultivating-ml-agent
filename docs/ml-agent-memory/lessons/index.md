@@ -30,6 +30,10 @@ timestamp: 2026-06-18T00:00:00Z
 * [Store Sales - v1→v3 ffill 修复，LB -0.77](store-sales-ffill-fix.md) (lag NaN cascade, mean_ratio 0.11 诊断)
 * [RMSLE - false_zero 惩罚 32x 于 false_positive](rmsle-zero-threshold-asymmetry.md) (对数指标不对称)
 
+### S6E6 (Stellar Class, Multi-class BAC)
+* [S6E6 - schema8 单模型 > 所有 blend](s6e6-schema8-single-best.md) (LB 0.96719, 单模型 OOF 0.9668 > 任何 blend)
+* [OKF enrich 不适合 Kaggle 数据](okf-enrich-not-for-kaggle.md) (hand-craft 比 auto-enrich 强)
+
 ## By principle (跨比赛)
 
 - **外部数据主导**: [S6E4](s6e4_external_blend.md), [S6E5](s6e5_external_data_fusion.md)
@@ -41,3 +45,5 @@ timestamp: 2026-06-18T00:00:00Z
 - **0/1 vs 概率提交**: [S6E2](s6e2_submission_format.md)
 - **简单诊断优先**: [Store Sales ffill](store-sales-ffill-fix.md)
 - **指标不对称决定策略**: [RMSLE zero 陷阱](rmsle-zero-threshold-asymmetry.md)
+- **单源 > 过度 blend**: [S6E6 schema8](s6e6-schema8-single-best.md)
+- **工具 vs 场景**: [OKF enrich 不适合 Kaggle](okf-enrich-not-for-kaggle.md)
