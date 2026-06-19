@@ -35,6 +35,9 @@ timestamp: 2026-06-18T00:00:00Z
 * [S6E6 - cdeotte_lr_stacker 新最佳 0.97101](s6e6-cdeotte-lr-best.md) (公开 LR stacker 单模型超过用户历史 0.97077)
 * [OKF enrich 不适合 Kaggle 数据](okf-enrich-not-for-kaggle.md) (hand-craft 比 auto-enrich 强)
 
+### S6E2 (Heart Disease, Binary AUC)
+* [S6E2 - LR stacker 没有增益](s6e2-lr-stacker-no-gain.md) (AutoGluon internal ensemble 已最优，correlated base 无信号)
+
 ## By principle (跨比赛)
 
 - **外部数据主导**: [S6E4](s6e4_external_blend.md), [S6E5](s6e5_external_data_fusion.md)
