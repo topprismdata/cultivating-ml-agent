@@ -33,6 +33,7 @@ timestamp: 2026-06-18T00:00:00Z
 ### S6E6 (Stellar Class, Multi-class BAC)
 * [S6E6 - schema8 单模型 > 所有 blend](s6e6-schema8-single-best.md) (LB 0.96719, 单模型 OOF 0.9668 > 任何 blend)
 * [S6E6 - cdeotte_lr_stacker 新最佳 0.97101](s6e6-cdeotte-lr-best.md) (公开 LR stacker 单模型超过用户历史 0.97077)
+* [S6E6 - 自训练 stacker OOF 过拟合 (gap 0.0098)](s6e6-cv-lb-gap-stacker-overfit.md) (8-source LR OOF 0.9724 → LB 0.9626; OOF 高 ≠ LB 高)
 * [OKF enrich 不适合 Kaggle 数据](okf-enrich-not-for-kaggle.md) (hand-craft 比 auto-enrich 强)
 
 ### S6E2 (Heart Disease, Binary AUC)
@@ -42,7 +43,9 @@ timestamp: 2026-06-18T00:00:00Z
 
 - **外部数据主导**: [S6E4](s6e4_external_blend.md), [S6E5](s6e5_external_data_fusion.md)
 - **Quality > Quantity**: [S6E4 signal dilution](s6e4_external_blend.md)
-- **CV-LB gap 警告阈值细化**: [S6E2](s6e2_cv_lb_gap.md)
+- **CV-LB gap 警告阈值细化**: [S6E2](s6e2_cv_lb_gap.md), [S6E6 stacker overfit](s6e6-cv-lb-gap-stacker-overfit.md)
+- **OOF 高 ≠ LB 高**: [S6E6 stacker](s6e6-cv-lb-gap-stacker-overfit.md) — 自训 8-LR OOF 0.9724 → LB 0.9626
+- **fold leakage in OOF stacker**: [S6E6](s6e6-cv-lb-gap-stacker-overfit.md)
 - **autoML vs manual stacking**: [S6E2](s6e2_autogluon_first.md)
 - **CatBoost dominance**: [S6E2](s6e2_catboost_first.md)
 - **对抗净化决策规则**: [S6E5](s6e5_adversarial_validation_failure.md)
