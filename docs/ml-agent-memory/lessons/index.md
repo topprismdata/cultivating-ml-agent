@@ -39,10 +39,14 @@ timestamp: 2026-06-18T00:00:00Z
 ### S6E2 (Heart Disease, Binary AUC)
 * [S6E2 - LR stacker 没有增益](s6e2-lr-stacker-no-gain.md) (AutoGluon internal ensemble 已最优，correlated base 无信号)
 
+### Rainfall Dataset (Binary AUC, temporal)
+* [Random k-fold overestimates temporal data (gap 0.05+)](random-kfold-overestimates-temporal.md) (year-6 holdout 0.8803 vs random OOF 0.9041, real LB 0.86564)
+
 ## By principle (跨比赛)
 
 - **外部数据主导**: [S6E4](s6e4_external_blend.md), [S6E5](s6e5_external_data_fusion.md)
 - **Quality > Quantity**: [S6E4 signal dilution](s6e4_external_blend.md)
+- **Time-aware CV for temporal data**: [Rainfall](random-kfold-overestimates-temporal.md)
 - **CV-LB gap 警告阈值细化**: [S6E2](s6e2_cv_lb_gap.md), [S6E6 stacker overfit](s6e6-cv-lb-gap-stacker-overfit.md)
 - **OOF 高 ≠ LB 高**: [S6E6 stacker](s6e6-cv-lb-gap-stacker-overfit.md) — 自训 8-LR OOF 0.9724 → LB 0.9626
 - **fold leakage in OOF stacker**: [S6E6](s6e6-cv-lb-gap-stacker-overfit.md)
