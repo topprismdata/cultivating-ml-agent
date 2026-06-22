@@ -42,6 +42,9 @@ timestamp: 2026-06-18T00:00:00Z
 ### Rainfall Dataset (Binary AUC, temporal)
 * [Random k-fold overestimates temporal data (gap 0.05+)](random-kfold-overestimates-temporal.md) (year-6 holdout 0.8803 vs random OOF 0.9041, real LB 0.86564)
 
+### Bank Dataset (Binary AUC, big tabular)
+* [bank-dataset competition doc](../competitions/bank-dataset.md) — AutoGluon + hyperparameter tuning = LB 0.97092
+
 ## By principle (跨比赛)
 
 - **外部数据主导**: [S6E4](s6e4_external_blend.md), [S6E5](s6e5_external_data_fusion.md)
