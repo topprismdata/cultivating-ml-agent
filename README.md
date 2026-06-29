@@ -147,7 +147,7 @@ cultivating-ml-agent/
 | 13 | nnU-Net Medical | 医学影像 | Apple Silicon 训练 |
 | 14 | **House Prices Advanced Regression** | **表格** | **🆕 v0.7.0: LB 0.11750** |
 | 15 | **Spaceship Titanic** | **表格** | **🆕 v0.7.0: LB 0.80780** |
-| 16 | **PTCG AI Battle** | **博弈 RL** | **🆕 v0.8.0: V_net + 2-ply search = 59% vs rank-304 heuristic (Deep RL Phase 2)** |
+| 16 | **PTCG AI Battle** | **博弈 RL** | **🆕 v0.8.0: V_net + 2-ply search = 59% vs rank-304 heuristic (Deep RL Phase 2) — v0.8.1: ladder-drift lesson (970→770) + meta-aware regression gate** |
 
 ---
 

@@ -116,3 +116,9 @@ Before choosing an approach, diagnose:
 PTCG AI Battle Challenge (Kaggle, 2026-06). Sessions 5-6: 8 failed augmentation
 approaches → V_net (89.4% acc) + 2-ply search = 59.0% vs rank-304 heuristic.
 Full plan in the project's `DEEP_RL_PLAN.md` (ReBeL architecture, 5 phases).
+
+**Session 8 update (2026-06-29)**: v29 baseline ladder-drifted from 970 → 770 LB
+(48h, Starmie/Archaludon/Dragapult meta shift). All "meta-aware" patches (v33, v34)
+regressed by 10-13% vs Archaludon in 200-game tests despite 60-game tests showing
+"neutral". See [[ladder-drift-meta-aware-regression]] for the meta-aware regression
+anti-pattern. Final state: v29 stays as best (770.5 LB, plateau).
