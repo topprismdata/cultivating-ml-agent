@@ -7,9 +7,9 @@
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Skills](https://img.shields.io/badge/skills-31%2B-blue)](https://github.com/topprismdata/cultivating-ml-agent/tree/main/skills/examples)
+[![Skills](https://img.shields.io/badge/skills-35%2B-blue)](https://github.com/topprismdata/cultivating-ml-agent/tree/main/skills/examples)
 [![Competitions](https://img.shields.io/badge/competitions-20%2B-success)](https://github.com/topprismdata/cultivating-ml-agent#covered-projects-15)
-[![Version](https://img.shields.io/badge/version-0.8.0-orange)](https://github.com/topprismdata/cultivating-ml-agent/releases)
+[![Version](https://img.shields.io/badge/version-0.8.1-orange)](https://github.com/topprismdata/cultivating-ml-agent/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/topprismdata/cultivating-ml-agent/pulls)
 [![Stars](https://img.shields.io/github/stars/topprismdata/cultivating-ml-agent?style=social)](https://github.com/topprismdata/cultivating-ml-agent/stargazers)
 
@@ -46,6 +46,10 @@
 | **trueskill-simulation-competition-strategy** | Kaggle 模拟竞赛 TrueSkill 评分策略（重提交=重置收敛、latest-2规则、high-roll） | PTCG 8+ submissions, 论坛 rank 4-9 共识 |
 | **code-competition-artifact-pipeline** | 代码竞赛 fork 公开 baseline 的 artifact 依赖管理 | ROGII/Biohub/NeuroGolf 3个竞赛验证 |
 | **onnx-minimal-network-design** | ONNX 最小网络设计（Conv权重求解、Gather排列、sparse限制） | NeuroGolf 400 task 扫描 + 独立工具链 |
+| **kaggle-cognitive-cost-optimization** | Kaggle 配额认知成本优化（0.6×BEST_PUBLIC规则、3-quota-first策略） | 20+ 竞赛, ratio 0.99 |
+| **kaggle-oof-lb-validation-protocol** | OOF/LB 验证协议（5种gap来源、3-strike规则、不对称gap） | 20+ 竞赛实证 |
+| **kaggle-competition-type-strategy** | 6种竞赛类型策略（标准/代码/模拟/研究/Playground/LLM） | 决策树 + 配额分配框架 |
+| **knowledge-crystallization-feedback-loop** | 知识结晶循环（实验→提取→分类→激活→遗忘） | 109+ memories, 31→35 skills |
 
 ### ✏️ 增强 Skills (v0.7.0 增强 2 个)
 - **ml-sweet-spot** — 新增 CatBoost-First 证据 + AutoGluon-First 对比
