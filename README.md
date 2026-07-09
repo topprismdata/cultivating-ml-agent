@@ -25,7 +25,7 @@
 
 ---
 
-## 🆕 v0.8.0 新版本 (2026-07-09) - Simulation + Code Competition Era
+## 🆕 v0.8.1 新版本 (2026-07-09) - Simulation + Code Competition + Universal Knowledge
 
 ### 🏆 最新成就
 
@@ -39,17 +39,24 @@
 | **House Prices** | 0.11750 LB | 用户混合 V16+V17 (30/70) |
 | **Spaceship Titanic** | 0.80780 LB | SST_v2 Top-5 CatBoost |
 
-### 📚 新 Skills (31+ 总数, v0.8.0 新增 3 个)
+### 📚 新 Skills (35+ 总数, v0.8.0-v0.8.1 共新增 7 个)
+
+**v0.8.0 竞赛特定 Skills (3个)**:
 
 | Skill | 用途 | 验证数据 |
 |-------|------|----------|
 | **trueskill-simulation-competition-strategy** | Kaggle 模拟竞赛 TrueSkill 评分策略（重提交=重置收敛、latest-2规则、high-roll） | PTCG 8+ submissions, 论坛 rank 4-9 共识 |
 | **code-competition-artifact-pipeline** | 代码竞赛 fork 公开 baseline 的 artifact 依赖管理 | ROGII/Biohub/NeuroGolf 3个竞赛验证 |
 | **onnx-minimal-network-design** | ONNX 最小网络设计（Conv权重求解、Gather排列、sparse限制） | NeuroGolf 400 task 扫描 + 独立工具链 |
-| **kaggle-cognitive-cost-optimization** | Kaggle 配额认知成本优化（0.6×BEST_PUBLIC规则、3-quota-first策略） | 20+ 竞赛, ratio 0.99 |
-| **kaggle-oof-lb-validation-protocol** | OOF/LB 验证协议（5种gap来源、3-strike规则、不对称gap） | 20+ 竞赛实证 |
-| **kaggle-competition-type-strategy** | 6种竞赛类型策略（标准/代码/模拟/研究/Playground/LLM） | 决策树 + 配额分配框架 |
-| **knowledge-crystallization-feedback-loop** | 知识结晶循环（实验→提取→分类→激活→遗忘） | 109+ memories, 31→35 skills |
+
+**v0.8.1 通用知识 Skills (4个)**:
+
+| Skill | 用途 | 验证数据 |
+|-------|------|----------|
+| **kaggle-cognitive-cost-optimization** | Kaggle 配额认知成本优化（0.6×BEST_PUBLIC规则、3-quota-first策略、配额决策树） | 20+ 竞赛, mean ratio 0.99 |
+| **kaggle-oof-lb-validation-protocol** | OOF/LB 验证协议（5种gap来源、4步确认协议、3-strike规则、不对称gap模式） | 8+ 竞赛实证表 |
+| **kaggle-competition-type-strategy** | 6种竞赛类型完整策略（标准/代码/模拟/研究/Playground/LLM）+ 48h决策树 + 配额分配 | 20+ 竞赛验证 |
+| **knowledge-crystallization-feedback-loop** | 知识结晶循环（实验→提取→分类→激活→遗忘）+ 3层架构 + AutoMem集成 | 109+ memories, 35 skills |
 
 ### ✏️ 增强 Skills (v0.7.0 增强 2 个)
 - **ml-sweet-spot** — 新增 CatBoost-First 证据 + AutoGluon-First 对比
@@ -62,7 +69,7 @@
 ### 👤 人类用户
 
 1. 阅读 [主指南](docs/cultivating-ml-agent-expert.md) (1088 行, ~30 min)
-2. 浏览 [示例 skills](skills/examples/) — **28+ skills** 覆盖表格、NLP、视觉、时序
+2. 浏览 [示例 skills](skills/examples/) — **35+ skills** 覆盖表格、NLP、视觉、时序、游戏AI、ONNX、知识结晶
 3. 使用 [模板](templates/) 创建自己的 skills
 4. **🆕 v0.7.0**: 表格问题先看 `skills/examples/autogluon-first/`
 
