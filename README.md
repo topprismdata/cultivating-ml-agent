@@ -7,7 +7,7 @@
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Skills](https://img.shields.io/badge/skills-36%2B-blue)](https://github.com/topprismdata/cultivating-ml-agent/tree/main/skills/examples)
+[![Skills](https://img.shields.io/badge/skills-40%2B-blue)](https://github.com/topprismdata/cultivating-ml-agent/tree/main/skills/examples)
 [![Competitions](https://img.shields.io/badge/competitions-20%2B-success)](https://github.com/topprismdata/cultivating-ml-agent#covered-projects-15)
 [![Version](https://img.shields.io/badge/version-0.8.1-orange)](https://github.com/topprismdata/cultivating-ml-agent/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/topprismdata/cultivating-ml-agent/pulls)
