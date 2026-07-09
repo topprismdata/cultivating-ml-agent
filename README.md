@@ -7,9 +7,9 @@
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Skills](https://img.shields.io/badge/skills-28%2B-blue)](https://github.com/topprismdata/cultivating-ml-agent/tree/main/skills/examples)
-[![Competitions](https://img.shields.io/badge/competitions-15%2B-success)](https://github.com/topprismdata/cultivating-ml-agent#covered-projects-15)
-[![Version](https://img.shields.io/badge/version-0.7.0-orange)](https://github.com/topprismdata/cultivating-ml-agent/releases)
+[![Skills](https://img.shields.io/badge/skills-31%2B-blue)](https://github.com/topprismdata/cultivating-ml-agent/tree/main/skills/examples)
+[![Competitions](https://img.shields.io/badge/competitions-20%2B-success)](https://github.com/topprismdata/cultivating-ml-agent#covered-projects-15)
+[![Version](https://img.shields.io/badge/version-0.8.0-orange)](https://github.com/topprismdata/cultivating-ml-agent/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/topprismdata/cultivating-ml-agent/pulls)
 [![Stars](https://img.shields.io/github/stars/topprismdata/cultivating-ml-agent?style=social)](https://github.com/topprismdata/cultivating-ml-agent/stargazers)
 
@@ -19,29 +19,33 @@
 
 ---
 
-基于 **3+ 个月** 使用 Claude Code 的真实实验，覆盖 **15+ 个 ML 竞赛/项目**，涵盖 Re-ID、时序预测、表格数据、定量 Alpha、医学影像、音频分类、数学推理等领域。
+基于 **4+ 个月** 使用 Claude Code 的真实实验，覆盖 **20+ 个 ML 竞赛/项目**，涵盖 Re-ID、时序预测、表格数据、定量 Alpha、医学影像、音频分类、数学推理、游戏 AI (PTCG)、细胞追踪 (Biohub)、ONNX 网络压缩 (NeuroGolf)、地质预测 (ROGII)、LLM 推理等领域。
 
 **核心成果**：Agent 从首个竞赛需要 **2 周**达到 Top 10%，进化到 **Top 5%** — 整整 **14x 加速**，全部归功于累积和结晶的知识。
 
 ---
 
-## 🆕 v0.7.0 新版本 (2026-06-14) - AutoGluon Era
+## 🆕 v0.8.0 新版本 (2026-07-09) - Simulation + Code Competition Era
 
 ### 🏆 最新成就
 
 | 竞赛 | 最佳成绩 | 方法 |
 |------|----------|------|
-| **House Prices Advanced Regression** | **0.11750 LB** | 用户混合 V16+V17 (30/70) — 超越 cs229_v9 0.11765 |
-| **Spaceship Titanic** | **0.80780 LB** | SST_v2 Top-5 CatBoost — 超越 V12 0.8066 |
-| **AutoGluon 历史重跑** | 4/12 胜 | AutoGluon 2/4 战胜手动集成 |
+| **PTCG AI Battle (Simulation)** | rank 219/4164 (top 5.3%), LB 967.8 | Nithin maktha Archaludon fork + TrueSkill 策略 + CPU eval harness |
+| **Playground s6e7** | **0.94942 LB** (top 500/720) | LGB+XGB+CAT blend, CatBoost-heavy 权重最优 |
+| **NeuroGolf 2026** | 7228.04 LB (rank 485/2893) | ONNX 公开 bundle fork + 独立 Conv 权重求解工具链 |
+| **ROGII Wellbore** | Pipeline A OOF 10.38 (forking 7159 baseline) | ravaghi artifacts + koolbox + Pipeline-A-only trim |
+| **Biohub Cell Tracking** | v1 CPU kernel pushed | LB810 UNet+ILP fork (GPU 待配额) |
+| **House Prices** | 0.11750 LB | 用户混合 V16+V17 (30/70) |
+| **Spaceship Titanic** | 0.80780 LB | SST_v2 Top-5 CatBoost |
 
-### 📚 新 Skills (28+ 总数, v0.7.0 新增 3 个)
+### 📚 新 Skills (31+ 总数, v0.8.0 新增 3 个)
 
 | Skill | 用途 | 验证数据 |
 |-------|------|----------|
-| **autogluon-first** | 任何表格比赛第一步跑 AutoGluon `best_quality` (5-15 min baseline) | House Prices CV 0.1180 vs V18 0.1194 |
-| **catboost-first-tabular** | 手动 GBDT 时首选 CatBoost（5 变体 ensemble sweet spot）| SST OOF 0.8124 vs XGB 0.8003 |
-| **cv-lb-gap-acknowledgment** | CV 改善 ≠ LB 改善。必须 LB 验证 | SST 0.005-0.01 gap |
+| **trueskill-simulation-competition-strategy** | Kaggle 模拟竞赛 TrueSkill 评分策略（重提交=重置收敛、latest-2规则、high-roll） | PTCG 8+ submissions, 论坛 rank 4-9 共识 |
+| **code-competition-artifact-pipeline** | 代码竞赛 fork 公开 baseline 的 artifact 依赖管理 | ROGII/Biohub/NeuroGolf 3个竞赛验证 |
+| **onnx-minimal-network-design** | ONNX 最小网络设计（Conv权重求解、Gather排列、sparse限制） | NeuroGolf 400 task 扫描 + 独立工具链 |
 
 ### ✏️ 增强 Skills (v0.7.0 增强 2 个)
 - **ml-sweet-spot** — 新增 CatBoost-First 证据 + AutoGluon-First 对比
