@@ -25,28 +25,26 @@
 
 ---
 
-## 🆕 v0.8.2 新版本 (2026-07-10) - AutoGluon Preset Strategy
+## 🆕 v0.8.3 新版本 (2026-07-10) - AutoGluon TimeSeriesPredictor
 
-### 🎯 AutoGluon Preset 选择指南（实证验证）
+### 🎯 时序数据 AutoGluon 专用 API（实证验证）
 
-新 skill `autogluon-preset-strategy` 解决了 AutoGluon 使用中的关键决策：
+新 skill `autogluon-timeseries-strategy` 解决了时序预测的特殊需求：
 
-**核心决策树**（s6e7 N=690K 实证）：
-- medium_quality (180s): val=0.8825 但**无 OOF**（auto_stack=False），不要用于严肃项目
-- good_quality (300s): **OOF=0.8730, 12 个模型** ← 推荐起点
-- high_quality (600s): OOF=0.8739, 14 个模型 — 比 good 仅高 0.0009
-- best_quality: 1-4h, ~100 个模型
-- extreme_quality: GPU 必须，用 TabPFNv2/TabICL/Mitra
+**关键发现**：`autogluon.tabular.TabularPredictor` ≠ `autogluon.timeseries.TimeSeriesPredictor`
 
-**何时不需要 EDA？**
-- 标准表格数据（数+类）：**不需要** — AG 自动处理
-- 时序特征：需要 lag/rolling 手工
-- 文本：可选（AG 有 NGRAM 自动生成）
-- 业务规则：需要
+**Store Sales 实证**（N=3M, 33 families × 54 stores × 1684 days）：
+- AG TimeSeriesPredictor `medium_quality` 300s → **LB RMSLE 0.41852**
+- 历史最佳（手动 stacking）：~0.4-0.5
+- **4 分钟**达到手动 1+ 小时水平
 
-**s6e7 实证**：没做 EDA 直接 fit AG high_quality → OOF=0.8739, **LB=0.87458, gap=0.0007（完美对齐）**
+**核心要点**：
+- 必须用 `TimeSeriesDataFrame.from_data_frame()` 转换格式
+- 需要指定 `freq`（'D'/'H'/'M'）
+- AG 自动处理 lag features / rolling stats / 时间序列 CV
+- 不要手动加 lag features（AG 内部自动生成）
 
-### 📚 新 Skills (36 总数, v0.8.2 新增 1 个)
+### 📚 新 Skills (37 总数, v0.8.3 新增 1 个)
 
 ### 🏆 最新成就
 
@@ -90,7 +88,7 @@
 ### 👤 人类用户
 
 1. 阅读 [主指南](docs/cultivating-ml-agent-expert.md) (1088 行, ~30 min)
-2. 浏览 [示例 skills](skills/examples/) — **36+ skills** 覆盖表格、NLP、视觉、时序、游戏AI、ONNX、知识结晶
+2. 浏览 [示例 skills](skills/examples/) — **37+ skills** 覆盖表格、NLP、视觉、时序、游戏AI、ONNX、知识结晶
 3. 使用 [模板](templates/) 创建自己的 skills
 4. **🆕 v0.7.0**: 表格问题先看 `skills/examples/autogluon-first/`
 
@@ -149,7 +147,8 @@ cultivating-ml-agent/
 ├── skills/
 │   └── examples/                # 28+ 个真实 skills
 │       ├── autogluon-first/            # 🆕 v0.7.0
-│       ├── autogluon-preset-strategy/  # 🆕 v0.8.2 — preset 选择 + 何时不需 EDA
+│       ├── autogluon-preset-strategy/  # 🆕 v0.8.2 — Tabular preset 选择
+│       ├── autogluon-timeseries-strategy/  # 🆕 v0.8.3 — 时序专用 API
 │       ├── catboost-first-tabular/     # 🆕 v0.7.0
 │       ├── cv-lb-gap-acknowledgment/   # 🆕 v0.7.0
 │       ├── claudeception/              # 自动 skill 提取
