@@ -71,29 +71,92 @@ ts_df = TimeSeriesDataFrame.from_data_frame(
 | `quantile_levels` | No | [0.1, ..., 0.9] | For probabilistic forecasts |
 | `path` | No | None | Model save directory |
 
-## Presets (Different from Tabular!)
+## Presets — AutoGluon 1.4 vs 1.5 (Critical Update)
 
-**IMPORTANT: TimeSeriesPredictor has NO `extreme_quality` preset.** That preset only exists in TabularPredictor (it uses GPU-only foundation models like TabPFNv2/TabICL/Mitra). For time series, the "best" preset is `best_quality`, which differs from Tabular's `best_quality` in what it does.
+**IMPORTANT: AG 1.5 (released 2025-12-19) made significant changes to TimeSeries presets.** This skill is based on AG 1.4 source code. If you're on 1.5+, see the "AG 1.5 Differences" section below.
+
+### AG 1.4 Presets (what this skill is built on)
+
+**IMPORTANT: TimeSeriesPredictor has NO `extreme_quality` preset.** That preset only exists in TabularPredictor.
 
 | Preset | Models | Time | Best For |
 |--------|--------|------|----------|
-| `fast_training` | Statistical + tree-based (no DL) | 1-2 min | Quick baseline |
+| `fast_training` | Naive, SeasonalNaive, ETS, Theta, RecursiveTabular, DirectTabular | 1-2 min | Quick baseline |
 | **`medium_quality`** | Above + TemporalFusionTransformer + Chronos-Bolt small | 5-15 min | **Recommended starting point** |
-| `high_quality` | DL + ML + statistical mix | 30-60 min | Strong forecast |
-| `best_quality` | **Same models as high_quality**, but validates with **multiple backtests** (num_val_windows > 1) | 1-4 hours | Maximum accuracy via robust validation |
+| `high_quality` | DL + ML + statistical mix + Chronos (zero-shot + fine-tuned) + TiDE | 30-60 min | Strong forecast |
+| `best_quality` | **Same models as high_quality** + `num_val_windows=2` (multi-backtest validation) | 1-4 hours | Maximum accuracy via robust validation |
 | `bolt_tiny` | Chronos-Bolt tiny only | <1 min | Zero-shot baseline |
 | `bolt_mini` | Chronos-Bolt mini only | <2 min | Zero-shot |
 | `bolt_small` | Chronos-Bolt small only | <5 min | Zero-shot |
 | `bolt_base` | Chronos-Bolt base only | <10 min | Zero-shot (most accurate Chronos) |
+
+**Hidden presets (verified from source `presets_configs.py`)**:
+
+| Preset | Equivalent | Use |
+|--------|-----------|-----|
+| `chronos` | `chronos_small` | Alias |
+| `chronos_tiny` | Original Chronos tiny | (rarely useful now) |
+| `chronos_mini` | Original Chronos mini | (rarely useful now) |
+| `chronos_small` | Original Chronos small | (rarely useful now) |
+| `chronos_base` | Original Chronos base | (rarely useful now) |
+| `chronos_large` | Original Chronos large (batch_size=8) | (rarely useful now) |
+| `chronos_ensemble` | Chronos small + 4 statistical models | **Hidden gem — better than chronos_small alone** |
+| `chronos_large_ensemble` | Chronos large + 4 statistical models | Best of original Chronos line |
+| `best` / `high` / `medium` | `best_quality` / etc. | Shorthand aliases |
+| `bq` / `hq` / `mq` | `best_quality` / etc. | Even shorter aliases |
 
 **Key difference vs Tabular presets**:
 - TimeSeries has **NO `good_quality`** (Tabular does)
 - TimeSeries has **NO `extreme_quality`** (Tabular does — uses GPU foundation models)
 - TimeSeries `best_quality` ≠ Tabular `best_quality`:
   - Tabular: ~100 models via zeroshot hyperparameter portfolio
-  - TimeSeries: same models as `high_quality`, but uses multiple validation backtest windows for more robust model selection
+  - TimeSeries: same models as `high_quality`, but uses `num_val_windows=2` (2 backtest windows for robust model selection)
 
-**Note**: Even though Tabular presets are NOT the same as Timeseries presets, the naming overlap (`medium/high/best`) causes confusion. Always check which predictor you're using.
+### AG 1.5 Differences (Breaking Changes!)
+
+**Released 2025-12-19. Source: GitHub release notes.**
+
+| Preset | AG 1.4 | AG 1.5 |
+|--------|--------|--------|
+| `fast_training` | ✅ | ✅ |
+| `medium_quality` | ✅ | ✅ |
+| `high_quality` | ✅ | ✅ |
+| `best_quality` | ✅ | ✅ |
+| `bolt_*` (Chronos-Bolt) | ✅ | ✅ |
+| `chronos` (alias for chronos_small) | ✅ | ❌ **REMOVED** |
+| `chronos_tiny/mini/small/base/large` | ✅ | ❌ **REMOVED** |
+| `chronos_ensemble` | ✅ (hidden) | ❌ **REMOVED** |
+| `chronos2` | ❌ | ✅ **NEW** |
+| `chronos2_small` | ❌ | ✅ **NEW** |
+| `chronos2_ensemble` | ❌ | ✅ **NEW** |
+
+**Migration 1.4 → 1.5**:
+```python
+# ❌ 1.4 → 1.5 breaks
+predictor.fit(data, presets='chronos_small')
+predictor.fit(data, presets='chronos_ensemble')
+
+# ✅ 1.5 replacement
+predictor.fit(data, presets='chronos2')
+predictor.fit(data, presets='chronos2_ensemble')
+```
+
+**New models in 1.5** (verified from release notes):
+- **Chronos-2** (zero-shot, LoRA fine-tune, full fine-tune)
+- **Toto** (new time series model)
+
+**Other 1.5 changes**:
+- `num_val_windows="auto"` — automatic backtesting configuration
+- `refit_every_n_windows="auto"` — automatic refit scheduling
+- New methods: `predictor.backtest_predictions()`, `predictor.backtest_targets()`
+- Multi-layer stack ensembles for time series
+- 80% win rate vs 1.4 (with same time budget)
+- 10min of 1.5 > 2hr of 1.4
+
+**Other breaking changes in 1.5**:
+- **Python 3.10+ required** (1.4 worked on 3.9)
+- **Models trained on 1.4 cannot be loaded in 1.5** — must retrain
+- Major dependency upgrades (torch 2.6-2.10, ray 2.43-2.53, etc.)
 
 ## Empirical Validation (Store Sales)
 
@@ -164,7 +227,7 @@ from autogluon.timeseries import TimeSeriesPredictor
 TimeSeriesPredictor(target='target', prediction_length=16, freq='D').fit(ts_df)
 ```
 
-## Models Trained by AG TimeSeries
+## Models Trained by AG TimeSeries (1.4 default preset)
 
 | Model | Type | Speed | Use case |
 |-------|------|-------|----------|
@@ -176,7 +239,22 @@ TimeSeriesPredictor(target='target', prediction_length=16, freq='D').fit(ts_df)
 | DeepAR | RNN-based | ~5min | Many related series |
 | Chronos-Bolt | Pretrained foundation model | ~1min | Zero-shot |
 | PatchTST | Patch-based transformer | ~5min | Long horizons |
-| AutoCES | Complex Exponential Smoothing | ~10s | Statistical baseline |
+| AutoETS | Automatic Exponential Smoothing | ~10s | Statistical baseline |
+| NPTS | Non-Parametric Time Series | ~10s | Statistical baseline |
+| DynamicOptimizedTheta | Optimized Theta method | ~10s | Statistical baseline |
+| TiDE | Long-term Time-series Dense Encoder | ~5min | Long horizons |
+
+**Note (1.4 only)**: `high_quality` / `best_quality` presets include **automatic fine-tuning of Chronos-Bolt small** with a CatBoost covariate regressor. This is hidden in source `get_default_hps('default')` — not visible in the docstring.
+
+```python
+# This is what 1.4 high_quality actually does (hidden in source):
+"Chronos": [
+    {"ag_args": {"name_suffix": "ZeroShot"}, "model_path": "bolt_base"},
+    {"ag_args": {"name_suffix": "FineTuned"}, "model_path": "bolt_small",
+     "fine_tune": True, "target_scaler": "standard",
+     "covariate_regressor": {"model_name": "CAT", "model_hyperparameters": {"iterations": 1000}}},
+],
+```
 
 ## Standard Workflow
 

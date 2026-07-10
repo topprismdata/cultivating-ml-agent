@@ -27,7 +27,7 @@
 
 ## 🆕 v0.8.3 新版本 (2026-07-10) - AutoGluon TimeSeriesPredictor
 
-### 🎯 时序数据 AutoGluon 专用 API（实证验证）
+### 🎯 时序数据 AutoGluon 专用 API（实证验证 + 1.5 升级警告）
 
 新 skill `autogluon-timeseries-strategy` 解决了时序预测的特殊需求：
 
@@ -43,6 +43,12 @@
 - 需要指定 `freq`（'D'/'H'/'M'）
 - AG 自动处理 lag features / rolling stats / 时间序列 CV
 - 不要手动加 lag features（AG 内部自动生成）
+
+**⚠️ AG 1.5 升级警告**（2025-12-19 release）：
+- Python 3.10+ required（1.4 兼容 3.9）
+- 1.4 训练的模型不能在 1.5 加载
+- `chronos_*` preset 系列完全删除，改用 `chronos2_*`
+- 80% win rate vs 1.4，10min 1.5 > 2hr 1.4
 
 ### 📚 新 Skills (37 总数, v0.8.3 新增 1 个)
 
