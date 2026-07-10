@@ -25,7 +25,32 @@
 
 ---
 
-## 🆕 v0.8.3 新版本 (2026-07-10) - AutoGluon TimeSeriesPredictor
+## 🆕 v0.8.4 新版本 (2026-07-10) - Chronos-2 + Covariates 突破
+
+### 🏆 Store Sales 历史最佳 LB 0.39525（AG 1.5 + Chronos-2）
+
+`autogluon-timeseries-strategy` skill 大幅扩展，加入 AG 1.5 Chronos-2 + known_covariates 工作流：
+
+**关键发现**：AG 1.5 的 **Chronos-2** + `known_covariates_names`（Chronos-2 原生支持 covariates）**+ 绕过 HF-mirror 错误的本地 model_path 技巧** → 0.41852 → 0.39525（**-5.6%**）
+
+| 方法 | OOF | LB |
+|------|-----|----|
+| 手动 LightGBM + stacking | — | 3.0+ |
+| AG 1.4 medium_quality | -0.4813 | 0.41852 |
+| AG 1.5 best_quality (no Chronos) | -0.4381 | 0.40053 |
+| **AG 1.5 Chronos-2 + Chronos + onpromotion covariate** | NaN | **0.39525** |
+
+**Chronos-2 关键创新**（vs Chronos-Bolt 1.4）：
+- Zero-shot forecasting SOTA (fev-bench, GIFT-Eval)
+- **Native known_covariates 支持**（这是 1.5 独占能力）
+- Cross-learning：跨 series 联合预测
+
+**HF-mirror bug 解决方案**：
+1. 预下载 `autogluon/chronos-2` 和 `amazon/chronos-bolt-base` 到 `~/.cache/huggingface/hub/`
+2. `os.environ.pop('HF_ENDPOINT', None)`（关键！AG 1.5 默认走 hf-mirror.com 不可达）
+3. 显式传本地路径作为 `hyperparameters={"Chronos2": {"model_path": LOCAL_C2}}`
+
+### 📚 新 Skills (37 总数, v0.8.4 增强)
 
 ### 🎯 时序数据 AutoGluon 专用 API（实证验证 + 1.5 升级警告）
 

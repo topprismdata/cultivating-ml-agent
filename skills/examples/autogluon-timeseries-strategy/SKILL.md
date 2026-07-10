@@ -3,13 +3,13 @@ name: autogluon-timeseries-strategy
 description: |
   AutoGluon TimeSeriesPredictor: special API and presets for time series forecasting
   (different from TabularPredictor). Validated on Store Sales (N=3M, 33 families × 54
-  stores × 1684 days): AG TimeSeriesPredictor medium_quality 300s → LB 0.41852 RMSLE.
+  stores × 1684 days): AG 1.5 Chronos-2 + Chronos + onpromotion covariates →
+  **LB RMSLE 0.39525** (best historical, vs AG 1.4 0.41852, vs manual 3.0+).
   Use when: (1) Working on time series competitions (forecasting), (2) Have multi-series
-  data (multiple stores/products/regions), (3) Need to handle lag features automatically,
-  (4) Comparing manual lag engineering vs AG's built-in features. Differs from
-  `autogluon-preset-strategy` (which covers TabularPredictor) — this skill covers
-  the completely separate TimeSeriesPredictor API, data format, presets, and
-  frequency specification.
+  data with optional covariates (promotions, holidays, prices), (3) Want AG 1.5 Chronos-2
+  zero-shot OR fine-tuned, (4) Need to bypass HF download errors. Differs from
+  `autogluon-preset-strategy` (which covers TabularPredictor). Key breakthrough:
+  using `model_path=LOCAL_PATH` to bypass `hf-mirror.com` download errors.
 ---
 
 # AutoGluon TimeSeriesPredictor Strategy
@@ -312,10 +312,156 @@ predictor = TimeSeriesPredictor(
 
 This is the **simplest possible starting point**. Custom lag features are usually unnecessary — AG handles them. Stacking/ensembling are usually unnecessary — AG does it. **For time series, AG is even more hands-off than tabular.**
 
+---
+
+## Chronos-2 + Covariates: The 0.39525 Breakthrough (Store Sales)
+
+**Date: 2026-07-10. Validated on Kaggle Store Sales competition.**
+
+The combination of three AG 1.5 features beats all previous attempts:
+
+| Approach | OOF (RMSLE) | LB (public) | Date |
+|----------|-------------|-------------|------|
+| Manual LightGBM + lag features + stacking | — | 3.0+ | 2026-07-07/08 |
+| AG 1.4 medium_quality | -0.4813 | 0.41852 | 2026-07-10 |
+| AG 1.5 best_quality (no Chronos, no covariates) | -0.4381 | 0.40053 | 2026-07-10 |
+| **AG 1.5 Chronos-2 + Chronos + onpromotion covariate** | **NaN (val)** | **0.39525** | 2026-07-10 |
+
+**Net improvement**: 0.41852 → 0.39525 = **-0.023 (-5.6%)** vs AG 1.4 baseline.
+
+### What AG 1.5 adds that 1.4 didn't
+
+1. **Chronos-2 model** (`autogluon/chronos-2`, 120M params)
+   - Zero-shot forecasting with state-of-the-art accuracy (fev-bench, GIFT-Eval)
+   - Native support for **known covariates** (Chronos-Bolt does NOT)
+   - Cross-learning: makes joint predictions across time series in a batch
+   - Default `presets="chronos2"` for zero-shot; `presets="chronos2_ensemble"` for ensemble
+
+2. **Multi-window backtesting** (`num_val_windows="auto"`)
+   - Default: 1 window. Best_quality uses multiple windows for robust selection
+
+3. **New method** `predictor.make_future_data_frame(train_data)` for covariates
+   - Returns DataFrame with item_id + timestamp for the next `prediction_length` steps
+   - You then fill in known covariate values and pass to `predict(known_covariates=...)`
+
+### Chronos-2 Correct Usage (from official tutorial)
+
+```python
+from autogluon.timeseries import TimeSeriesPredictor, TimeSeriesDataFrame
+
+# Data MUST include future-known covariates (not just past)
+ts_full = TimeSeriesDataFrame.from_data_frame(
+    pd.concat([train_df, test_df]),  # test has known onpromotion for 16 days
+    id_column='item_id',
+    timestamp_column='timestamp',
+)
+
+predictor = TimeSeriesPredictor(
+    target='target',
+    prediction_length=16,
+    known_covariates_names=['onpromotion', 'dcoilwtico', ...],  # NEW in 1.5
+).fit(
+    ts_full,
+    hyperparameters={
+        "Chronos": {"model_path": "<bolt path>"},
+        "Chronos2": {"model_path": "<c2 path>"},
+    },
+    enable_ensemble=False,
+    time_limit=600,
+)
+
+# Predict with covariates
+train_only = ts_full.loc[ts_full.index.get_level_values('timestamp') < test_start]
+future_cov = predictor.make_future_data_frame(train_only)
+# Fill in known values (e.g., merge with test.csv's onpromotion)
+future_cov = future_cov.merge(test_df[['item_id', 'date', 'onpromotion']], ...)
+pred = predictor.predict(train_only, known_covariates=TimeSeriesDataFrame(future_cov))
+```
+
+### The HF-Mirror Bug: How to Work Around It
+
+When running AG 1.5 in environments where `huggingface.co` is blocked, AG 1.5 defaults to `hf-mirror.com` (which is also unreachable). Result: `OSError: We couldn't connect to 'https://hf-mirror.com'`.
+
+**Solution**: Pre-download models manually + use `model_path=LOCAL_PATH`.
+
+```bash
+# Step 1: Pre-download (any machine with internet)
+HF_HUB_OFFLINE=0 HF_ENDPOINT=https://huggingface.co python -c "
+from huggingface_hub import snapshot_download
+snapshot_download(repo_id='autogluon/chronos-2', cache_dir='~/.cache/huggingface/hub')
+snapshot_download(repo_id='amazon/chronos-bolt-base', cache_dir='~/.cache/huggingface/hub')
+"
+
+# Find local paths
+ls ~/.cache/huggingface/hub/models--autogluon--chronos-2/snapshots/
+# Pick the actual hash directory, e.g., 60088152a34e...
+
+# Step 2: Use LOCAL paths in AG (no download needed)
+```
+
+```python
+LOCAL_C2 = '/Users/mac/.cache/huggingface/hub/models--autogluon--chronos-2/snapshots/60088152a34e242427b44c3100014473a0157d53/'
+LOCAL_BOLT = '/Users/mac/.cache/huggingface/hub/models--amazon--chronos-bolt-base/snapshots/5d9f166d69f47aef3401367a7b842e78fe97b121/'
+
+# Critical: also unset HF_ENDPOINT
+import os
+os.environ.pop('HF_ENDPOINT', None)
+
+predictor.fit(
+    ts_full,
+    hyperparameters={
+        "Chronos": {"model_path": LOCAL_BOLT},
+        "Chronos2": {"model_path": LOCAL_C2},
+    },
+)
+```
+
+### Fine-Tuning Chronos-2 (LoRA by default)
+
+```python
+predictor.fit(
+    ts_full,
+    hyperparameters={
+        "Chronos2": [
+            {"ag_args": {"name_suffix": "ZeroShot"}},          # zero-shot
+            {"fine_tune": True, "ag_args": {"name_suffix": "FineTuned"}},  # LoRA
+        ],
+    },
+    time_limit=1800,  # Fine-tuning needs more time
+)
+```
+
+**Caveat**: On Store Sales (large data), Chronos-2 fine-tuning timed out at 30min. Use `fine_tune_mode="lora"`, `fine_tune_steps=1000` for faster fine-tuning.
+
+### Known Covariates vs Past Covariates
+
+| Type | Example | AG 1.5 Support |
+|------|---------|----------------|
+| **Known covariates** (future known) | promotions, holidays, planned prices | ✅ Chronos-2 native |
+| **Past covariates** (only historical) | weather observations, lagged indicators | ✅ Chronos2, TFT, DeepAR |
+
+```python
+predictor = TimeSeriesPredictor(
+    known_covariates_names=['onpromotion', 'holiday', 'price'],  # future known
+    # past_covariates_names=[...],  # only historical
+)
+```
+
+### Common Pitfalls
+
+1. **Forgetting `enable_ensemble=False`**: AG 1.5 will try to train all Chronos variants together, taking very long. For fastest experiments, set False.
+2. **Not providing test data in TimeSeriesDataFrame**: Chronos-2 needs to know future covariate values during training/fitting.
+3. **Wrong column name in merge**: TimeSeriesDataFrame uses `timestamp` not `date` after `reset_index()`.
+
+---
+
 ## References
 
 - [AG Timeseries Quick Start](https://auto.gluon.ai/stable/tutorials/timeseries/forecasting-quick-start.html)
 - [AG Timeseries Models](https://auto.gluon.ai/stable/tutorials/timeseries/forecasting-models.html)
+- [AG Forecasting with Chronos-2 (official tutorial)](https://auto.gluon.ai/stable/tutorials/timeseries/forecasting-chronos.html)
 - AG 1.4.0 TimeSeriesPredictor docstring (inspect.getsource)
 - [Chronos-Bolt paper](https://arxiv.org/abs/2504.05291)
-- Store Sales competition: empirical validation (RMSLE LB 0.41852)
+- [Chronos-2 paper](https://arxiv.org/abs/2510.15821)
+- Store Sales competition: empirical validation (RMSLE LB 0.39525, 2026-07-10)
+- AG GitHub: `autogluon/autogluon/forecasting-chronos.ipynb` (canonical Chronos-2 examples)
