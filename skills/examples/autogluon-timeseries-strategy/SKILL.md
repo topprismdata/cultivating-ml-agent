@@ -73,15 +73,27 @@ ts_df = TimeSeriesDataFrame.from_data_frame(
 
 ## Presets (Different from Tabular!)
 
+**IMPORTANT: TimeSeriesPredictor has NO `extreme_quality` preset.** That preset only exists in TabularPredictor (it uses GPU-only foundation models like TabPFNv2/TabICL/Mitra). For time series, the "best" preset is `best_quality`, which differs from Tabular's `best_quality` in what it does.
+
 | Preset | Models | Time | Best For |
 |--------|--------|------|----------|
 | `fast_training` | Statistical + tree-based (no DL) | 1-2 min | Quick baseline |
 | **`medium_quality`** | Above + TemporalFusionTransformer + Chronos-Bolt small | 5-15 min | **Recommended starting point** |
 | `high_quality` | DL + ML + statistical mix | 30-60 min | Strong forecast |
-| `best_quality` | All + multi-window backtests | 1-4 hours | Maximum accuracy |
-| `bolt_tiny/mini/small/base` | Chronos-Bolt pretrained only | 1-5 min | Zero-shot |
+| `best_quality` | **Same models as high_quality**, but validates with **multiple backtests** (num_val_windows > 1) | 1-4 hours | Maximum accuracy via robust validation |
+| `bolt_tiny` | Chronos-Bolt tiny only | <1 min | Zero-shot baseline |
+| `bolt_mini` | Chronos-Bolt mini only | <2 min | Zero-shot |
+| `bolt_small` | Chronos-Bolt small only | <5 min | Zero-shot |
+| `bolt_base` | Chronos-Bolt base only | <10 min | Zero-shot (most accurate Chronos) |
 
-**Note**: Timeseries presets are NOT the same as Tabular presets! Tabular's `good_quality` ≠ Timeseries' `good_quality`.
+**Key difference vs Tabular presets**:
+- TimeSeries has **NO `good_quality`** (Tabular does)
+- TimeSeries has **NO `extreme_quality`** (Tabular does — uses GPU foundation models)
+- TimeSeries `best_quality` ≠ Tabular `best_quality`:
+  - Tabular: ~100 models via zeroshot hyperparameter portfolio
+  - TimeSeries: same models as `high_quality`, but uses multiple validation backtest windows for more robust model selection
+
+**Note**: Even though Tabular presets are NOT the same as Timeseries presets, the naming overlap (`medium/high/best`) causes confusion. Always check which predictor you're using.
 
 ## Empirical Validation (Store Sales)
 
