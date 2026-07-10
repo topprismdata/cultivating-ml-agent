@@ -283,7 +283,7 @@ Contributions welcome! Especially:
 
 <div align="center">
 
-**Last Updated**: 2026-06-14 | **Version**: 0.7.0 | **Total Skills**: 28+ | **Total Competitions**: 15+
+**Last Updated**: 2026-07-10 | **Version**: 0.8.2 | **Total Skills**: 36+ | **Total Competitions**: 15+
 
 Made with ❤️ for the ML community
 
