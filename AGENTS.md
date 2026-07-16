@@ -340,6 +340,9 @@ After completing an experiment or finding a breakthrough:
 | Pseudo-labeling | s6e4 | +0.001 single round, -0.001 iterative | Threshold ≥0.90 |
 | Polynomial features | House Prices | +0.016 (small dataset) | Rows < 10K |
 | Adversarial purification | s6e5 | No benefit if AUC≈0.50 | Check first before filtering |
+| **Fork public kernels (code comps)** | NeuroGolf, AI Agent Sec | +0.6% to +60% | When top kernels score near LB |
+| **BUDGET-FILLING attack (sim code comp)** | AI Agent Security | 39 → 62 LB | Fill 97% of 9000s budget per model |
+| **Monkey-patch numpy 2.0** | Biohub | Made v16/v17 work | `_center`, `_blas_supports_fpe` shims |
 
 ## Resources
 

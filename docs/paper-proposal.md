@@ -169,6 +169,8 @@ Four memory types that persist across sessions:
 | PTCG AI Battle | RL/Sim | Top 4.7% (μ=970) | TrueSkill strategy | 3× |
 | Store Sales | Time Series | RMSLE 0.395 | AG Chronos-2 + covariates | 4× |
 | NeuroGolf | ONNX | Score 7228 | ONNX minimal design | 2× |
+| NeuroGolf (updated 2026-07) | Code Comp | **Score 7269.68** (+41) | Fork 7 public kernels | 4h |
+| AI Agent Security | Code Comp | **Score 62.64** | BUDGET-FILLING attack | 12h |
 
 ### 4.2 Ablation: With vs Without Skills
 
