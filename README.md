@@ -52,7 +52,30 @@
 
 ### 📚 新 Skills (37 总数, v0.8.4 增强)
 
-### 🎯 时序数据 AutoGluon 专用 API（实证验证 + 1.5 升级警告）
+## 🆕 v0.8.5 新版本 (2026-07-26) - 跨算法族 Blend 突破
+
+### 🏆 Store Sales 新最佳 LB 0.38444（Chronos-2 + darts LightGBM blend）
+
+新 skill `store-sales-darts-chronos-blend` 记录了突破单模型天花板的方法：
+
+**关键发现**：单个强模型会触顶，**跨算法族 blend**（神经网络 Chronos-2 + 树模型 darts LightGBM）才能继续突破。**同族 blend 无效**（Chronos v1+v2 相关性 >0.99，无增益），跨族 blend 即使各自分数相近也能大幅提升。
+
+| 方法 | LB |
+|------|-----|
+| AG 1.5 Chronos-2 v2（单模型） | 0.39387 |
+| darts LightGBM top-1 方法（单模型） | 0.39953 |
+| **Chronos-2 + darts 几何 blend (w=0.55)** | **0.38444** (-0.012) |
+
+**darts 关键价值**：`LightGBMModel(output_chunk_length=1).predict(n=16)` **自动正确处理递归预测**，避免了手写递归的系统性 bug（偏低 44% / 趋势外推失控 4-7x）。
+
+**方法论要点**：
+- 几何平均（log 空间线性组合）适配 RMSLE
+- 读论坛优先于调参（darts top-1 方法来自比赛 discussion）
+- 失败路径已记录（同族 blend、手写递归、Hybrid Ridge 外推、per-family 缩放）
+
+
+
+
 
 新 skill `autogluon-timeseries-strategy` 解决了时序预测的特殊需求：
 
