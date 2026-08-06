@@ -7,9 +7,9 @@
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Skills](https://img.shields.io/badge/skills-31%2B-blue)](https://github.com/topprismdata/cultivating-ml-agent/tree/main/skills/examples)
-[![Competitions](https://img.shields.io/badge/competitions-15%2B-success)](https://github.com/topprismdata/cultivating-ml-agent#covered-projects-15)
-[![Version](https://img.shields.io/badge/version-0.7.0-orange)](https://github.com/topprismdata/cultivating-ml-agent/releases)
+[![Skills](https://img.shields.io/badge/skills-43%2B-blue)](https://github.com/topprismdata/cultivating-ml-agent/tree/main/skills/examples)
+[![Competitions](https://img.shields.io/badge/competitions-20%2B-success)](https://github.com/topprismdata/cultivating-ml-agent#covered-projects-15)
+[![Version](https://img.shields.io/badge/version-0.9.0-orange)](https://github.com/topprismdata/cultivating-ml-agent/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/topprismdata/cultivating-ml-agent/pulls)
 [![Stars](https://img.shields.io/github/stars/topprismdata/cultivating-ml-agent?style=social)](https://github.com/topprismdata/cultivating-ml-agent/stargazers)
 
@@ -19,29 +19,117 @@
 
 ---
 
-基于 **3+ 个月** 使用 Claude Code 的真实实验，覆盖 **15+ 个 ML 竞赛/项目**，涵盖 Re-ID、时序预测、表格数据、定量 Alpha、医学影像、音频分类、数学推理等领域。
+基于 **4+ 个月** 使用 Claude Code 的真实实验，覆盖 **20+ 个 ML 竞赛/项目**，涵盖 Re-ID、时序预测、表格数据、定量 Alpha、医学影像、音频分类、数学推理、游戏 AI (PTCG)、细胞追踪 (Biohub)、ONNX 网络压缩 (NeuroGolf)、地质预测 (ROGII)、LLM 推理等领域。
 
 **核心成果**：Agent 从首个竞赛需要 **2 周**达到 Top 10%，进化到 **Top 5%** — 整整 **14x 加速**，全部归功于累积和结晶的知识。
 
 ---
 
-## 🆕 v0.7.0 新版本 (2026-06-14) - AutoGluon Era
+## 🆕 v0.8.4 新版本 (2026-07-10) - Chronos-2 + Covariates 突破
+
+### 🏆 Store Sales 历史最佳 LB 0.39525（AG 1.5 + Chronos-2）
+
+`autogluon-timeseries-strategy` skill 大幅扩展，加入 AG 1.5 Chronos-2 + known_covariates 工作流：
+
+**关键发现**：AG 1.5 的 **Chronos-2** + `known_covariates_names`（Chronos-2 原生支持 covariates）**+ 绕过 HF-mirror 错误的本地 model_path 技巧** → 0.41852 → 0.39525（**-5.6%**）
+
+| 方法 | OOF | LB |
+|------|-----|----|
+| 手动 LightGBM + stacking | — | 3.0+ |
+| AG 1.4 medium_quality | -0.4813 | 0.41852 |
+| AG 1.5 best_quality (no Chronos) | -0.4381 | 0.40053 |
+| **AG 1.5 Chronos-2 + Chronos + onpromotion covariate** | NaN | **0.39525** |
+
+**Chronos-2 关键创新**（vs Chronos-Bolt 1.4）：
+- Zero-shot forecasting SOTA (fev-bench, GIFT-Eval)
+- **Native known_covariates 支持**（这是 1.5 独占能力）
+- Cross-learning：跨 series 联合预测
+
+**HF-mirror bug 解决方案**：
+1. 预下载 `autogluon/chronos-2` 和 `amazon/chronos-bolt-base` 到 `~/.cache/huggingface/hub/`
+2. `os.environ.pop('HF_ENDPOINT', None)`（关键！AG 1.5 默认走 hf-mirror.com 不可达）
+3. 显式传本地路径作为 `hyperparameters={"Chronos2": {"model_path": LOCAL_C2}}`
+
+### 📚 新 Skills (37 总数, v0.8.4 增强)
+
+## 🆕 v0.8.5 新版本 (2026-07-26) - 跨算法族 Blend 突破
+
+### 🏆 Store Sales 新最佳 LB 0.38444（Chronos-2 + darts LightGBM blend）
+
+新 skill `store-sales-darts-chronos-blend` 记录了突破单模型天花板的方法：
+
+**关键发现**：单个强模型会触顶，**跨算法族 blend**（神经网络 Chronos-2 + 树模型 darts LightGBM）才能继续突破。**同族 blend 无效**（Chronos v1+v2 相关性 >0.99，无增益），跨族 blend 即使各自分数相近也能大幅提升。
+
+| 方法 | LB |
+|------|-----|
+| AG 1.5 Chronos-2 v2（单模型） | 0.39387 |
+| darts LightGBM top-1 方法（单模型） | 0.39953 |
+| **Chronos-2 + darts 几何 blend (w=0.55)** | **0.38444** (-0.012) |
+
+**darts 关键价值**：`LightGBMModel(output_chunk_length=1).predict(n=16)` **自动正确处理递归预测**，避免了手写递归的系统性 bug（偏低 44% / 趋势外推失控 4-7x）。
+
+**方法论要点**：
+- 几何平均（log 空间线性组合）适配 RMSLE
+- 读论坛优先于调参（darts top-1 方法来自比赛 discussion）
+- 失败路径已记录（同族 blend、手写递归、Hybrid Ridge 外推、per-family 缩放）
+
+
+
+
+
+新 skill `autogluon-timeseries-strategy` 解决了时序预测的特殊需求：
+
+**关键发现**：`autogluon.tabular.TabularPredictor` ≠ `autogluon.timeseries.TimeSeriesPredictor`
+
+**Store Sales 实证**（N=3M, 33 families × 54 stores × 1684 days）：
+- AG TimeSeriesPredictor `medium_quality` 300s → **LB RMSLE 0.41852**
+- 历史最佳（手动 stacking）：~0.4-0.5
+- **4 分钟**达到手动 1+ 小时水平
+
+**核心要点**：
+- 必须用 `TimeSeriesDataFrame.from_data_frame()` 转换格式
+- 需要指定 `freq`（'D'/'H'/'M'）
+- AG 自动处理 lag features / rolling stats / 时间序列 CV
+- 不要手动加 lag features（AG 内部自动生成）
+
+**⚠️ AG 1.5 升级警告**（2025-12-19 release）：
+- Python 3.10+ required（1.4 兼容 3.9）
+- 1.4 训练的模型不能在 1.5 加载
+- `chronos_*` preset 系列完全删除，改用 `chronos2_*`
+- 80% win rate vs 1.4，10min 1.5 > 2hr 1.4
+
+### 📚 新 Skills (37 总数, v0.8.3 新增 1 个)
 
 ### 🏆 最新成就
 
 | 竞赛 | 最佳成绩 | 方法 |
 |------|----------|------|
-| **House Prices Advanced Regression** | **0.11750 LB** | 用户混合 V16+V17 (30/70) — 超越 cs229_v9 0.11765 |
-| **Spaceship Titanic** | **0.80780 LB** | SST_v2 Top-5 CatBoost — 超越 V12 0.8066 |
-| **AutoGluon 历史重跑** | 4/12 胜 | AutoGluon 2/4 战胜手动集成 |
+| **PTCG AI Battle (Simulation)** | rank 219/4164 (top 5.3%), LB 967.8 | Nithin maktha Archaludon fork + TrueSkill 策略 + CPU eval harness |
+| **Playground s6e7** | **0.94942 LB** (top 500/720) | LGB+XGB+CAT blend, CatBoost-heavy 权重最优 |
+| **NeuroGolf 2026** | 7228.04 LB (rank 485/2893) | ONNX 公开 bundle fork + 独立 Conv 权重求解工具链 |
+| **ROGII Wellbore** | Pipeline A OOF 10.38 (forking 7159 baseline) | ravaghi artifacts + koolbox + Pipeline-A-only trim |
+| **Biohub Cell Tracking** | v1 CPU kernel pushed | LB810 UNet+ILP fork (GPU 待配额) |
+| **House Prices** | 0.11750 LB | 用户混合 V16+V17 (30/70) |
+| **Spaceship Titanic** | 0.80780 LB | SST_v2 Top-5 CatBoost |
 
-### 📚 新 Skills (28+ 总数, v0.7.0 新增 3 个)
+### 📚 新 Skills (35+ 总数, v0.8.0-v0.8.1 共新增 7 个)
+
+**v0.8.0 竞赛特定 Skills (3个)**:
 
 | Skill | 用途 | 验证数据 |
 |-------|------|----------|
-| **autogluon-first** | 任何表格比赛第一步跑 AutoGluon `best_quality` (5-15 min baseline) | House Prices CV 0.1180 vs V18 0.1194 |
-| **catboost-first-tabular** | 手动 GBDT 时首选 CatBoost（5 变体 ensemble sweet spot）| SST OOF 0.8124 vs XGB 0.8003 |
-| **cv-lb-gap-acknowledgment** | CV 改善 ≠ LB 改善。必须 LB 验证 | SST 0.005-0.01 gap |
+| **trueskill-simulation-competition-strategy** | Kaggle 模拟竞赛 TrueSkill 评分策略（重提交=重置收敛、latest-2规则、high-roll） | PTCG 8+ submissions, 论坛 rank 4-9 共识 |
+| **code-competition-artifact-pipeline** | 代码竞赛 fork 公开 baseline 的 artifact 依赖管理 | ROGII/Biohub/NeuroGolf 3个竞赛验证 |
+| **onnx-minimal-network-design** | ONNX 最小网络设计（Conv权重求解、Gather排列、sparse限制） | NeuroGolf 400 task 扫描 + 独立工具链 |
+
+**v0.8.1 通用知识 Skills (4个)**:
+
+| Skill | 用途 | 验证数据 |
+|-------|------|----------|
+| **kaggle-cognitive-cost-optimization** | Kaggle 配额认知成本优化（0.6×BEST_PUBLIC规则、3-quota-first策略、配额决策树） | 20+ 竞赛, mean ratio 0.99 |
+| **kaggle-oof-lb-validation-protocol** | OOF/LB 验证协议（5种gap来源、4步确认协议、3-strike规则、不对称gap模式） | 8+ 竞赛实证表 |
+| **kaggle-competition-type-strategy** | 6种竞赛类型完整策略（标准/代码/模拟/研究/Playground/LLM）+ 48h决策树 + 配额分配 | 20+ 竞赛验证 |
+| **knowledge-crystallization-feedback-loop** | 知识结晶循环（实验→提取→分类→激活→遗忘）+ 3层架构 + AutoMem集成 | 109+ memories, 35 skills |
 
 ### ✏️ 增强 Skills (v0.7.0 增强 2 个)
 - **ml-sweet-spot** — 新增 CatBoost-First 证据 + AutoGluon-First 对比
@@ -54,7 +142,7 @@
 ### 👤 人类用户
 
 1. 阅读 [主指南](docs/cultivating-ml-agent-expert.md) (1088 行, ~30 min)
-2. 浏览 [示例 skills](skills/examples/) — **31+ skills** 覆盖表格、NLP、视觉、时序、推荐
+2. 浏览 [示例 skills](skills/examples/) — **43+ skills** 覆盖表格、NLP、视觉、时序、游戏AI、ONNX、知识结晶、推荐
 3. 使用 [模板](templates/) 创建自己的 skills
 4. **🆕 v0.7.0**: 表格问题先看 `skills/examples/autogluon-first/`
 
@@ -111,11 +199,13 @@ cultivating-ml-agent/
 │   └── framework/                       # 框架文档
 ├── framework/                   # 可复用 MLOps 框架
 ├── skills/
-│   └── examples/                # 31+ 个真实 skills
+│   └── examples/                # 43+ 个真实 skills
 │       ├── time-series-walk-forward-validation/  # 🆕 v0.9.0
 │       ├── cross-competition-feature-transfer/   # 🆕 v0.9.0
 │       ├── feature-engineering-saturation-detection/ # 🆕 v0.9.0
 │       ├── autogluon-first/            # 🆕 v0.7.0
+│       ├── autogluon-preset-strategy/  # 🆕 v0.8.2 — Tabular preset 选择
+│       ├── autogluon-timeseries-strategy/  # 🆕 v0.8.3 — 时序专用 API
 │       ├── catboost-first-tabular/     # 🆕 v0.7.0
 │       ├── cv-lb-gap-acknowledgment/   # 🆕 v0.7.0
 │       ├── claudeception/              # 自动 skill 提取
@@ -123,7 +213,7 @@ cultivating-ml-agent/
 │       ├── agent-nurture-framework/
 │       ├── ml-sweet-spot/              # ✏️ v0.7.0 更新
 │       ├── kaggle-optimal-blending/     # ✏️ v0.7.0 更新
-│       └── ... (28+ 总数)
+│       └── ... (43+ 总数)
 └── templates/
     ├── bug-fix-skill.md
     └── knowledge-skill.md
@@ -271,7 +361,7 @@ Step 5: AutoGluon 作为 Silver + 自定义集成  [新 SKILL: kaggle-optimal-bl
 ### 更早版本 (v0.1.0 - v0.4.0)
 
 - 13 个竞赛经验结晶
-- 19 → 31+ skills
+- 19 → 43+ skills
 - 建立三层知识架构
 
 ---
@@ -301,7 +391,7 @@ MIT License — 自由使用此框架培养您自己的 ML Agent。
 
 <div align="center">
 
-**最后更新**: 2026-08-05 | **版本**: 0.9.0 | **总 Skills**: 31+ | **总竞赛**: 15+
+**最后更新**: 2026-08-05 | **版本**: 0.9.0 | **总 Skills**: 43+ | **总竞赛**: 20+
 
 Made with ❤️ for the ML community | 用 ❤️ 制作，献给 ML 社区
 
