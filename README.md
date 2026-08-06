@@ -7,7 +7,7 @@
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Skills](https://img.shields.io/badge/skills-28%2B-blue)](https://github.com/topprismdata/cultivating-ml-agent/tree/main/skills/examples)
+[![Skills](https://img.shields.io/badge/skills-31%2B-blue)](https://github.com/topprismdata/cultivating-ml-agent/tree/main/skills/examples)
 [![Competitions](https://img.shields.io/badge/competitions-15%2B-success)](https://github.com/topprismdata/cultivating-ml-agent#covered-projects-15)
 [![Version](https://img.shields.io/badge/version-0.7.0-orange)](https://github.com/topprismdata/cultivating-ml-agent/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/topprismdata/cultivating-ml-agent/pulls)
@@ -54,7 +54,7 @@
 ### 👤 人类用户
 
 1. 阅读 [主指南](docs/cultivating-ml-agent-expert.md) (1088 行, ~30 min)
-2. 浏览 [示例 skills](skills/examples/) — **28+ skills** 覆盖表格、NLP、视觉、时序
+2. 浏览 [示例 skills](skills/examples/) — **31+ skills** 覆盖表格、NLP、视觉、时序、推荐
 3. 使用 [模板](templates/) 创建自己的 skills
 4. **🆕 v0.7.0**: 表格问题先看 `skills/examples/autogluon-first/`
 
@@ -111,7 +111,10 @@ cultivating-ml-agent/
 │   └── framework/                       # 框架文档
 ├── framework/                   # 可复用 MLOps 框架
 ├── skills/
-│   └── examples/                # 28+ 个真实 skills
+│   └── examples/                # 31+ 个真实 skills
+│       ├── time-series-walk-forward-validation/  # 🆕 v0.9.0
+│       ├── cross-competition-feature-transfer/   # 🆕 v0.9.0
+│       ├── feature-engineering-saturation-detection/ # 🆕 v0.9.0
 │       ├── autogluon-first/            # 🆕 v0.7.0
 │       ├── catboost-first-tabular/     # 🆕 v0.7.0
 │       ├── cv-lb-gap-acknowledgment/   # 🆕 v0.7.0
@@ -221,6 +224,18 @@ Step 5: AutoGluon 作为 Silver + 自定义集成  [新 SKILL: kaggle-optimal-bl
 
 ## 📜 变更日志
 
+### v0.9.0 (2026-08-05) — Time-Series & Recommendation Era
+
+**新增 3 个 skills(基于零售 SKU 推荐项目实战经验):**
+- `time-series-walk-forward-validation` — 时间序列项目标准评估规范(替代 K-fold)、8 项泄露检查清单、理论上限计算
+- `cross-competition-feature-transfer` — 跨竞赛特征迁移方法论(Instacart 2017 → 推荐系统,F1 +12pp 案例)
+- `feature-engineering-saturation-detection` — "特征工程已饱和"的 4 个判断信号 + 何时切换范式
+
+**关键洞察:**
+- 时间序列问题必须用 walk-forward,K-fold 会让 CV 比线上高 5-15pp
+- 跨相似竞赛(top 5% 方案)迁移特征是最值钱的 ROI,可达 10x 于手工造特征
+- 特征工程会饱和,连续 3-4 版无提升就应换数据/换范式,别再调参
+
 ### v0.7.0 (2026-06-14) — AutoGluon Era
 
 **新增 3 个 skills:**
@@ -256,7 +271,7 @@ Step 5: AutoGluon 作为 Silver + 自定义集成  [新 SKILL: kaggle-optimal-bl
 ### 更早版本 (v0.1.0 - v0.4.0)
 
 - 13 个竞赛经验结晶
-- 19 → 28+ skills
+- 19 → 31+ skills
 - 建立三层知识架构
 
 ---
@@ -286,7 +301,7 @@ MIT License — 自由使用此框架培养您自己的 ML Agent。
 
 <div align="center">
 
-**最后更新**: 2026-06-14 | **版本**: 0.7.0 | **总 Skills**: 28+ | **总竞赛**: 15+
+**最后更新**: 2026-08-05 | **版本**: 0.9.0 | **总 Skills**: 31+ | **总竞赛**: 15+
 
 Made with ❤️ for the ML community | 用 ❤️ 制作，献给 ML 社区
 
