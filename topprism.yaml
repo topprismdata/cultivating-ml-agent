@@ -1,34 +1,37 @@
 topprism:
-  purpose: native_ai
+  purpose: native-ai
   capability: ml_agent_capability_compounding
-  maturity: applied_internal
+  platform_layer: organizational-intelligence
+  maturity: internal-utility
   evidence:
-    type: multi_project_experience
-    statement: >-
-      Longitudinal cross-project ML capability accumulation. Currently 63
-      skill files under skills/examples/, 9 documented competition cases
-      under docs/ml-agent-memory/competitions/, 16 lessons under
-      docs/ml-agent-memory/lessons/, spanning tabular, time-series,
-      vision, medical imaging, audio, simulation/game AI, model
-      compression and LLM reasoning task families.
+    type: internal-evaluation
+    source: topprism-internal-eval
+    scope: >-
+      Longitudinal cross-project ML capability accumulation. Currently
+      63 skill files under skills/examples/, 9 documented competition
+      cases under docs/ml-agent-memory/competitions/, 16 lessons
+      under docs/ml-agent-memory/lessons/, spanning tabular,
+      time-series, vision, medical imaging, audio, simulation / game
+      AI, model compression and LLM reasoning task families.
+    status: longitudinal-internal
 
 business_question:
   en: >-
     How does an ML agent become measurably better at each successive
-    ML project it works on, rather than restarting from generic
-    model knowledge every time?
+    ML project it works on, rather than restarting from generic model
+    knowledge every time?
   zh: >-
     如何让 ML Agent 在每个后续 ML 项目上都比上一个项目更强，而不是每次
     都从通用模型知识重新开始？
 
 platform:
-  system: native_ai
-  layer: agent_capability
-  solution: cultivating_ml_agent
+  system: native-ai
+  layer: agent-capability
+  solution: cultivating-ml-agent
 
 website:
-  product_path: /native-ai/cultivating-ml-agent
-  evidence_path: /evidence/cultivating-ml-agent
+  status: planned
+  path: /native-ai/cultivating-ml-agent
 
 repository:
   owner: topprismdata
