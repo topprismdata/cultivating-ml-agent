@@ -1,290 +1,186 @@
-# Cultivating ML Agent Expert
+# Cultivating ML Agent
 
-> A systematic guide for training AI agents from ML novice to competition Top 10% through knowledge crystallization.
+### A self-improving ML agent that compounds capability across projects
 
-<div align="center">
+`Purpose: NATIVE AI` · `Maturity: APPLIED INTERNAL` · `Evidence: MULTI-PROJECT EXPERIENCE`
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Skills](https://img.shields.io/badge/skills-28%2B-blue)](https://github.com/topprismdata/cultivating-ml-agent/tree/main/skills/examples)
-[![Competitions](https://img.shields.io/badge/competitions-15%2B-success)](https://github.com/topprismdata/cultivating-ml-agent#covered-projects-15)
-[![Version](https://img.shields.io/badge/version-0.7.0-orange)](https://github.com/topprismdata/cultivating-ml-agent/releases)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/topprismdata/cultivating-ml-agent/pulls)
-[![Stars](https://img.shields.io/github/stars/topprismdata/cultivating-ml-agent?style=social)](https://github.com/topprismdata/cultivating-ml-agent/stargazers)
+> Part of **TopPrism Native AI**.
+>
+> Competitions are used as measurable learning environments; the long-term goal is broader enterprise machine-learning work.
 
-</div>
+## Why this exists
 
-[中文版本](README.md) | Chinese Version
+Most ML agents are stateless in an organizational sense: a new project starts with roughly the same generic model knowledge as the previous one.
 
----
+TopPrism's goal is different:
 
-Based on **3+ months of real-world experimentation** with Claude Code, covering **15+ ML competitions/projects** across Re-ID, time series forecasting, tabular data, quantitative Alpha, medical imaging, audio classification, and mathematical reasoning.
+> **Every completed ML project should make the agent better at the next ML project.**
 
-**Key Result**: Agent went from needing 2 weeks to achieve Top 10% in its first competition to achieving Top 5% — a **14x speedup** attributable entirely to accumulated and crystallized knowledge.
+The project turns repeated practice into reusable organizational capability through knowledge crystallization, structured skills, shared tooling and explicit evaluation.
 
----
+## The compounding loop
 
-## 🆕 What's New (v0.7.0, 2026-06-14) — AutoGluon Era
-
-### 🏆 Latest Achievements
-
-| Competition | Best Score | Method |
-|-------------|------------|--------|
-| **House Prices Advanced Regression** | **0.11750 LB** | User blended V16+V17 (30/70) — beat cs229_v9 0.11765 |
-| **Spaceship Titanic** | **0.80780 LB** | SST_v2 Top-5 CatBoost — beat V12 0.8066 |
-| **AutoGluon Historical Re-run** | 4/12 wins | AutoGluon beats manual 2/4 times |
-
-### 📚 New Skills (28+ total, 3 new in v0.7.0)
-
-| Skill | Purpose | Validated |
-|-------|---------|-----------|
-| **autogluon-first** | Run AutoGluon `best_quality` as first step in any tabular competition (5-15 min baseline) | HP CV 0.1180 vs V18 0.1194 |
-| **catboost-first-tabular** | When manual GBDT needed, start with CatBoost (5-variant ensemble sweet spot) | SST OOF 0.8124 vs XGB 0.8003 |
-| **cv-lb-gap-acknowledgment** | CV improvement does NOT equal LB improvement. Always validate on LB | SST 0.005-0.01 gap |
-
-### ✏️ Enhanced Skills (2 in v0.7.0)
-- **ml-sweet-spot** — Added CatBoost-First evidence + AutoGluon-First comparison
-- **kaggle-optimal-blending** — Added asymmetric-blending (30/70) principle
-
----
-
-## 🚀 Quick Start
-
-### 👤 For Humans
-
-1. Read the [main guide](docs/cultivating-ml-agent-expert.md) (1088 lines, ~30 min)
-2. Browse [example skills](skills/examples/) — **28+ skills** covering tabular, NLP, vision, time series
-3. Use [templates](templates/) to create your own skills
-4. **🆕 v0.7.0**: Start with `skills/examples/autogluon-first/` for tabular problems
-
-### 🤖 For AI Agents (Claude Code, etc.)
-
-1. Read [AGENTS.md](AGENTS.md) for autonomous ML workflow instructions
-2. Use `framework/` modules for structured pipeline (config, logging, validation, MLflow)
-3. Activate skills from `skills/examples/` when encountering matching problems
-4. **🆕 v0.7.0**: Try [`ml-agent-code-template/`](ml-agent-code-template/) for a ready-to-use Claude Code setup with auto-activation, cross-model review (Antigravity/Gemini/Codex), and memory health checks.
-
----
-
-## 💡 Core Concepts
-
-### 1. Nurture-First Development
-
-Don't pre-program all knowledge. Instead, build a **Knowledge Crystallization Cycle**:
-> Encounter problems in practice → extract reusable patterns → organize into structured skills → auto-activate on similar problems.
-
-### 2. Three-Layer Knowledge Architecture
-
-| Layer | Content | Update Frequency |
-|-------|---------|-----------------|
-| L1: Core Capabilities | ML fundamentals, data science workflow | Monthly |
-| L2: Domain Skills | Competition-specific techniques, anti-patterns | Weekly |
-| L3: Wisdom Principles | Cross-domain universal principles | Per milestone |
-
-### 3. Five-Stage Learning Loop
-
-```
-Study (Theory) → Verify (Notebook) → Apply (Competition) → Extract (Crystallize) → Plan (Gap Analysis)
+```text
+Real ML Project
+      ↓
+Experiments & Failures
+      ↓
+Validated Experience
+      ↓
+Knowledge Crystallization
+      ↓
+Reusable Skill / Framework Pattern
+      ↓
+Automatic activation in a later project
+      ↓
+Better starting point for the next ML project
 ```
 
-### 4. 🆕 v0.7.0: AutoML-First Strategy
+The key output is therefore not only a trained model or leaderboard score. It is a growing body of **machine-readable, reusable ML capability**.
 
-For any **tabular** problem, **AutoGluon is the optimal first step** (5-15 min). Only move to manual GBDT work if:
-- AutoGluon's OOF doesn't meet requirements
-- You have domain knowledge AutoGluon can't capture
-- You want to add AutoGluon as a "Silver" signal in a custom pipeline
+## What compounds across projects
 
-**Validated**: AutoGluon beats manual ensembles **2/4 times** on small/medium tabular datasets.
+### Project experience
 
----
+What worked, what failed, under which data/metric/compute conditions.
 
-## 📁 Project Structure
+### Domain skills
 
-```
-cultivating-ml-agent/
-├── README.md                    # This file (English)
-├── README_EN.md                 # Chinese version
-├── AGENTS.md                    # Autonomous agent instructions
-├── docs/
-│   ├── cultivating-ml-agent-expert.md   # Main guide (1088 lines)
-│   └── framework/                       # Framework documentation
-├── framework/                   # Reusable MLOps framework
-├── skills/
-│   └── examples/                # 28+ real skills extracted from practice
-│       ├── autogluon-first/            # 🆕 v0.7.0
-│       ├── catboost-first-tabular/     # 🆕 v0.7.0
-│       ├── cv-lb-gap-acknowledgment/   # 🆕 v0.7.0
-│       ├── claudeception/              # Auto skill extraction
-│       ├── three-layer-wisdom-extraction/
-│       ├── agent-nurture-framework/
-│       ├── ml-sweet-spot/              # ✏️ v0.7.0
-│       ├── kaggle-optimal-blending/     # ✏️ v0.7.0
-│       └── ... (28+ total)
-└── templates/
-    ├── bug-fix-skill.md
-    └── knowledge-skill.md
-```
+Reusable workflows for time series, tabular ML, vision, multimodal tasks, model selection, validation, ensembling and other recurring ML problem types.
 
----
+### MLOps patterns
 
-## 🏆 Covered Projects (15+)
+Experiment tracking, artifact management, reproducibility, evaluation and failure recovery.
 
-| # | Project | Domain | Key Achievement |
-|---|---------|--------|----------------|
-| 1 | Kaggle S6E2 | Tabular | First competition, Top 9% |
-| 2 | Kaggle S6E3 | Tabular | Adversarial validation breakthrough |
-| 3 | Kaggle S6E4 | Spatiotemporal Graph | 24h to Top 10% |
-| 4 | WorldQuant Brain Alpha | Quantitative | Alpha factor mining |
-| 5 | Jaguar Re-ID | Computer Vision | 94.46% validation accuracy |
-| 6 | AIMO3 | Math Reasoning | SC-TIR with Qwen3.5 |
-| 7 | Store Sales | Time Series | LB 1.859 → 0.399 (4.7x improvement) |
-| 8 | Vesuvius Challenge | 3D Segmentation | nnU-Net + RAG research |
-| 9 | BirdCLEF+ 2026 | Audio Classification | 234 wildlife species |
-| 10 | March Madness 2026 | Sports Prediction | Elo/Massey rating system |
-| 11 | ISEC 2026 | Software Defects | SMOTE + polynomial features |
-| 12 | Store Sales R11 | Time Series | Top 5% (latest) |
-| 13 | nnU-Net Medical | Medical Imaging | Apple Silicon training |
-| 14 | **House Prices Advanced Regression** | **Tabular** | **🆕 v0.7.0: LB 0.11750** |
-| 15 | **Spaceship Titanic** | **Tabular** | **🆕 v0.7.0: LB 0.80780** |
+### Cross-domain principles
 
----
+Higher-level lessons that survive beyond a single competition or dataset.
 
-## 🛠️ Key Methodologies (SOPs)
+## Current evidence
 
-The most important content is the **5 SOPs** in the main guide:
+The repository records a multi-month sequence of ML projects across multiple task families, including time series, tabular prediction, vision, medical imaging, audio, simulation/game AI, model compression and LLM-related tasks.
 
-1. **Competition Startup SOP** — Systematic workflow from data download to first submission
-2. **Model Debugging SOP** — Progressive diagnosis from prediction magnitude to feature importance
-3. **Skill Extraction SOP** — Automated knowledge crystallization via claudeception
-4. **Experiment Management SOP** — Reproducible iteration with naming conventions
-5. **Ensemble Learning SOP** — From correlation check to optimal blending
+The strongest evidence is longitudinal rather than a single score:
 
-### 🆕 v0.7.0 New Methodological Insights
+- later projects reuse skills and framework components extracted from earlier projects;
+- failed approaches are retained as negative knowledge;
+- project-specific lessons are promoted into reusable skills only after validation;
+- the shared framework and agent instructions increasingly reduce the amount of work that must be rediscovered from scratch.
 
-| Insight | Why It Matters |
-|---------|----------------|
-| **AutoGluon is the first step** for tabular | 5-15 min baseline matches days of manual work |
-| **CV ≠ LB** | CV improvement does NOT translate to LB (0.005-0.01 gap common) |
-| **CatBoost > LightGBM/XGBoost** on tabular | Native categorical handling, robust defaults |
-| **Multi-model diversity > multi-seed** | 3 GBDT families > 15 same-family models |
-| **Asymmetric blending** | 30% Silver + 70% Top-5 > 50/50 (when one family dominates) |
+### Important boundary
 
----
+Competition rank is **not** the definition of success for this project. Kaggle and similar environments are useful because they provide fast, objective feedback. The intended capability is an ML agent that can improve through **any sufficiently instrumented machine-learning project**.
 
-## 🔧 MLOps Framework
+## Architecture
 
-The `framework/` directory provides reusable Python modules validated against real Kaggle competitions (H&M Recommendations LB 0.02368, S6E4 LB 0.98150).
-
-### Quick Integration
-
-```bash
-# Copy framework to your competition project
-cp -r framework/ /path/to/your-competition/
-
-# Edit config for your competition
-cp framework/config_template.yaml config.yaml
+```text
+                    ML Agent
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+   Project Context  Skill Library   Shared Framework
+        │              │              │
+        └──────────────┼──────────────┘
+                       ↓
+                 Experiment Loop
+                       ↓
+             Evaluation / Evidence
+                       ↓
+            Knowledge Crystallization
+                       ↓
+             Updated Agent Capability
 ```
 
-### 🆕 v0.7.0: Recommended Workflow for Tabular
+Key repository areas:
 
-```
-Step 1: AutoGluon (5-15 min)      [NEW SKILL: autogluon-first]
-   ↓ Validate OOF
-Step 2: CatBoost single model     [NEW SKILL: catboost-first-tabular]
-   ↓ Compare
-Step 3: 5 CatBoost variants ensemble (sweet spot)
-   ↓ Add LightGBM + XGBoost (multi-model diversity)
-Step 4: Validate on LB              [NEW SKILL: cv-lb-gap-acknowledgment]
-   ↓ Stop if no improvement
-Step 5: AutoGluon as Silver + Custom ensemble  [NEW SKILL: kaggle-optimal-blending]
-   ↓ Submit
+```text
+AGENTS.md                 operating instructions for the agent
+framework/                reusable ML / MLOps framework components
+skills/                   crystallized reusable capabilities
+ml-agent-code-template/   starting structure for future ML projects
+templates/                reusable project artifacts
+docs/                     methodology and accumulated knowledge
+examples/                 worked examples
+tests/                    checks for shared components
 ```
 
----
+## Nurture-first development
 
-## 🎓 Academic Alignment
+The project follows a **Nurture-First** principle:
 
-| Academic Concept | Our Practice |
-|-----------------|-------------|
-| AIDE (Huang 2024) trial-and-error learning | Detailed failure records per competition |
-| AutoMind (Zhang 2025) knowledge base | 120+ SKILL.md three-layer architecture |
-| Voyager (Wang 2023) skill library | Claudeception auto-extraction system |
-| CoMind (2025) memory architecture | Global/project/skill three-layer memory |
-| Reflexion (Shinn 2023) experience reflection | Three-layer wisdom extraction |
-| NFD (Zhang 2026) nurture-first | Core philosophy of this project |
-| **AutoGluon (Fakoor 2020)** | **🆕 v0.7.0: Multi-algorithm ensemble + stacking baseline** |
-| **TabPFN (Hollmann 2023)** | **🆕 v0.7.0: Transformer for small tabular (future direction)** |
+> Do not attempt to encode the complete ML playbook up front. Let real projects expose capability gaps, solve them, validate the solution, and then crystallize the reusable part.
 
----
+A typical learning cycle is:
 
-## 📜 Changelog
+```text
+Study → Verify → Apply → Extract → Plan
+```
 
-### v0.7.0 (2026-06-14) — AutoGluon Era
+This separates speculative knowledge from knowledge that has survived practical use.
 
-**Added 3 new skills:**
-- `autogluon-first` — Run AutoGluon `best_quality` as first step
-- `catboost-first-tabular` — CatBoost > LightGBM/XGBoost for tabular
-- `cv-lb-gap-acknowledgment` — CV improvement ≠ LB improvement
+## Relationship to other TopPrism Native AI projects
 
-**Enhanced 2 skills:**
-- `ml-sweet-spot` — Added CatBoost-First evidence
-- `kaggle-optimal-blending` — Added asymmetric-blending (30/70)
+### `agent-nurture-framework`
 
-**New competitions covered:**
-- House Prices Advanced Regression (LB 0.11750)
-- Spaceship Titanic (LB 0.80780)
+General methodology for project-driven agent capability development.
 
-**Validation:**
-- AutoGluon beats manual ensembles 2/4 times on small/medium tabular
-- Top-5 CatBoost ensemble > 15-model mixed ensemble (when one family dominates)
-- 0.005-0.01 CV-LB gap consistently observed
+### `skill-tester`
 
-### v0.6.0 (2026-06-02) — Proactive Evolution
+Evaluation gate for reusable agent skills before they become trusted organizational capabilities.
 
-- Added 3 Proactive Evolution enhancements
-- Updated nurture framework
-- Added retail-eda-framework skill
+### `notebook-knowledge-distillation`
 
-### v0.5.0 (2026-05-31) — ML Agent Code Template
+Pipeline for converting external knowledge sources into validated skill candidates.
 
-- Added `ml-agent-code-template/` (9 hooks, 6 commands, 2 agents)
-- Validated on 8 MLE-Bench competitions (6 Gold, 2 Silver)
-- Added Obsidian Memory Vault pattern
+### `three-layer-wisdom-extraction`
 
-### Earlier (v0.1.0 - v0.4.0)
+Attempts to promote concrete project experiences into domain knowledge and cross-domain transferable principles.
 
-- 13 competition experiences crystallized
-- 19 → 28+ skills added
-- Three-layer knowledge architecture established
+## Quick start
 
----
+Use the repository as a **project operating system**, not only as a code library.
 
-## 📄 License
+1. Read `AGENTS.md`.
+2. Start from `ml-agent-code-template/` for a new ML project.
+3. Reuse `framework/` rather than rebuilding common MLOps plumbing.
+4. Activate relevant skills from the skill library.
+5. Record experiments and failures.
+6. Crystallize only validated, reusable knowledge after the project.
 
-MIT License — feel free to use this framework to cultivate your own ML agent.
+## Evidence hygiene
 
-## 🤝 Contributing
+Project metrics, competition scores and speed-up claims should always be tied to the specific project and protocol that produced them.
 
-Contributions welcome! Especially:
-- **New skill examples from your own ML projects**
-- **Improved SOPs or methodologies**
-- **Translations of the main guide**
-- **Bug fixes in skill templates**
-- **New AutoML tool integrations** (H2O, FLAML, Auto-sklearn)
+A historical observation such as a major reduction in time-to-strong-result is treated as **longitudinal case evidence**, not a universal guarantee that every future ML task will improve by the same factor.
 
-### Adding a New Skill
+## What this project is not
 
-1. Copy `templates/knowledge-skill.md` to `skills/examples/<your-skill-name>/SKILL.md`
-2. Fill in the template (problem, context, solution, anti-patterns)
-3. Validate on at least one real competition
-4. Update the index in this README
-5. Submit a PR with the new skill
+- It is not a single AutoML model.
+- It is not a Kaggle-only agent.
+- It is not a static prompt collection.
+- It is not a claim that accumulated skills eliminate the need for project-specific reasoning.
 
----
+## Roadmap
 
-<div align="center">
+The direction of travel is toward a company-wide ML capability layer where:
 
-**Last Updated**: 2026-07-10 | **Version**: 0.8.2 | **Total Skills**: 36+ | **Total Competitions**: 15+
+- new projects start from accumulated organizational knowledge;
+- project outcomes continuously improve the shared skill system;
+- evaluation prevents low-quality knowledge from becoming permanent agent behavior;
+- internal ML work becomes progressively more reproducible and less dependent on rediscovery by individuals.
 
-Made with ❤️ for the ML community
+## Where this fits at TopPrism
 
-</div>
+TopPrism uses Native AI to build a second compounding loop alongside customer Decision Intelligence:
+
+```text
+Customer projects generate experience
+          ↓
+Experience becomes reusable machine knowledge
+          ↓
+Internal agents improve
+          ↓
+The next customer / internal project starts stronger
+```
+
+That organizational learning loop is the primary purpose of this repository.
