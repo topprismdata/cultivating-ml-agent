@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: "If you use this software or research, please cite this repository."
+type: software
+title: "Cultivating ML Agent"
+authors:
+  - name: "TopPrism Data"
+repository-code: https://github.com/topprismdata/cultivating-ml-agent
