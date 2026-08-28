@@ -4,6 +4,9 @@
 
 # Cultivating ML Agent
 
+> **语言 / Language:** 中文为主 · [English README](README_EN.md)
+
+
 ### 通过项目实践、知识结晶与可复用 Skills 持续进化的 ML Agent
 
 `Purpose: NATIVE AI` · `Maturity: APPLIED INTERNAL` · `Evidence: MULTI-PROJECT EXPERIENCE`

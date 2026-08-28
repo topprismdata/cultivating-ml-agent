@@ -1,5 +1,7 @@
 # Cultivating ML Agent
 
+> **Language / 语言:** English primary · [中文 README](README.md)
+
 ### A self-improving ML agent that compounds capability across projects
 
 `Purpose: NATIVE AI` · `Maturity: APPLIED INTERNAL` · `Evidence: MULTI-PROJECT EXPERIENCE`
