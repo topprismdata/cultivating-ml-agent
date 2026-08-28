@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/topprismdata/.github/main/assets/brand/topprism-repo-header.png" alt="TopPrism dual-prism visual" width="100%" />
+</p>
+
 # Cultivating ML Agent
 
 ### 通过项目实践、知识结晶与可复用 Skills 持续进化的 ML Agent
