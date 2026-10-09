@@ -22,6 +22,13 @@ except ImportError:  # mlflow not installed; tracking utilities unavailable
     pass
 
 from .oof import build_oof_frame
+from .splits import (
+    make_folds,
+    stratified_folds,
+    kfold_folds,
+    time_based_folds,
+    group_folds,
+)
 
 __all__ = [
     "validate_pipeline",
@@ -33,6 +40,11 @@ __all__ = [
     "EvaluationGateError",
     "FAILURE_CATEGORIES",
     "build_oof_frame",
+    "make_folds",
+    "stratified_folds",
+    "kfold_folds",
+    "time_based_folds",
+    "group_folds",
     "start_experiment",
     "log_experiment",
     "log_lb_score",
