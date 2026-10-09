@@ -15,6 +15,7 @@ Code Sandbox — 安全执行 Python 代码并捕获错误
 from __future__ import annotations
 
 import subprocess
+import sys
 import tempfile
 import os
 from dataclasses import dataclass, field
@@ -42,9 +43,11 @@ class ExecutionResult:
 class CodeSandbox:
     """Python 代码沙箱"""
 
-    def __init__(self, timeout_sec: int = 30, python_executable: str = "python"):
+    def __init__(self, timeout_sec: int = 30, python_executable: str = ""):
         self.timeout_sec = timeout_sec
-        self.python_executable = python_executable
+        # Empty default falls back to the current interpreter so macOS
+        # systems without a `python` alias on PATH still work.
+        self.python_executable = python_executable or sys.executable
 
     def execute(self, code: str, working_dir: Optional = None,
                 env: Optional[Dict] = None) -> ExecutionResult:
