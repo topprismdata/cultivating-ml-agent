@@ -205,9 +205,21 @@ class CompetitionConfig:
 # ---------------------------------------------------------------------------
 
 def _filter_dataclass_kwargs(raw: dict, cls) -> dict:
-    """Filter dict keys to only those accepted by a dataclass."""
+    """Filter dict keys to only those accepted by a dataclass.
+
+    Unknown keys are dropped with a warning so typos in YAML configs
+    don't silently change behavior.
+    """
+    import logging
+    import warnings as _warnings
+
     from dataclasses import fields as dc_fields
     valid = {f.name for f in dc_fields(cls)}
+    unknown = [k for k in raw if k not in valid]
+    if unknown:
+        msg = f"Unknown {cls.__name__} keys ignored: {sorted(unknown)}"
+        logging.getLogger(__name__).warning(msg)
+        _warnings.warn(msg, stacklevel=2)
     return {k: v for k, v in raw.items() if k in valid}
 
 
