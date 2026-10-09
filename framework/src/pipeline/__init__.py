@@ -10,13 +10,18 @@ from .validate import (
     EvaluationGateError,
     FAILURE_CATEGORIES,
 )
-from .mlflow_utils import (
-    start_experiment,
-    log_experiment,
-    log_lb_score,
-    setup_mlflow,
-    ExperimentContext,
-)
+try:
+    from .mlflow_utils import (
+        start_experiment,
+        log_experiment,
+        log_lb_score,
+        setup_mlflow,
+        ExperimentContext,
+    )
+except ImportError:  # mlflow not installed; tracking utilities unavailable
+    pass
+
+from .oof import build_oof_frame
 
 __all__ = [
     "validate_pipeline",
@@ -27,6 +32,7 @@ __all__ = [
     "PipelineValidationError",
     "EvaluationGateError",
     "FAILURE_CATEGORIES",
+    "build_oof_frame",
     "start_experiment",
     "log_experiment",
     "log_lb_score",

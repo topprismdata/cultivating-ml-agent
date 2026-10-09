@@ -12,7 +12,7 @@ Usage:
         ctx.log_params(params)
         ctx.log_metrics({"cv_rmse": 21.55})
         ctx.log_features(feature_cols)
-        ctx.log_oof(oof_preds, train_ids)
+        ctx.log_oof(oof_preds, train_ids, targets=y_true)
         ctx.log_feature_importance(model, feature_cols)
         ctx.log_submission(submission_path)
 
@@ -62,17 +62,21 @@ class ExperimentContext:
         mlflow.log_text("\n".join(feature_list), "features.txt")
 
     def log_oof(self, oof_predictions: np.ndarray, ids: Optional[np.ndarray] = None,
+                targets: Optional[np.ndarray] = None,
                 target_col: str = "target") -> None:
         """Log out-of-fold predictions as CSV artifact.
 
         OOF predictions are essential for:
         - Stacking/ensemble without data leakage
         - Error analysis on training data
+
+        When ``targets`` is provided, ground-truth labels are written under
+        ``target_col``; otherwise the column is omitted entirely.
         """
-        df = pd.DataFrame({"oof_pred": oof_predictions})
-        if ids is not None:
-            df.insert(0, "id", ids)
-        df[target_col] = target_col  # placeholder, caller should merge actual target
+        from pipeline.oof import build_oof_frame
+
+        df = build_oof_frame(oof_predictions, ids=ids, targets=targets,
+                             target_col=target_col)
 
         tmp_path = Path(f"/tmp/oof_{self.run_name}.csv")
         df.to_csv(tmp_path, index=False)
