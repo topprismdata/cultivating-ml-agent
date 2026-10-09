@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cultivating-ml-agent:experiment-ir:0.1.0",
+  "title": "ExperimentIR",
+  "description": "ML-domain experiment contract (SPEC-001). Once compiled the document is immutable for natural-language agents: any change must produce a new revision whose supersedes points at the previous content_hash. Shape and types are enforced here; semantic legality (positive budgets, metric direction, temporal consistency, protocol equality, authorization) is enforced by the hard gates G1-G6 in ir.experiment_ir, so gate-level violations pass this schema and must be caught by run_gates/authorize_execution.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "experiment_id",
+    "task_ref",
+    "world_state_ref",
+    "objective",
+    "dataset_snapshot_ref",
+    "feature_set_ref",
+    "validation_protocol_ref",
+    "metric_definition_ref",
+    "baseline_ref",
+    "candidates",
+    "hard_constraints",
+    "budget",
+    "expected_artifacts",
+    "authorization",
+    "source_ref",
+    "created_at",
+    "content_hash",
+    "revision"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "description": "ExperimentIR contract version; a new semantic version requires a new schema directory."
+    },
+    "experiment_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Globally unique experiment identifier."
+    },
+    "task_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Reference to the task/competition definition this experiment serves."
+    },
+    "world_state_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Reference to the world-state snapshot (prior experiments, decisions) at compile time."
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable statement of what this experiment tries to learn."
+    },
+    "dataset_snapshot_ref": {
+      "$ref": "#/$defs/datasetSnapshotRef"
+    },
+    "feature_set_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Reference to the immutable feature-set definition."
+    },
+    "validation_protocol_ref": {
+      "$ref": "#/$defs/validationProtocolRef"
+    },
+    "metric_definition_ref": {
+      "$ref": "#/$defs/metricDefinitionRef"
+    },
+    "baseline_ref": {
+      "$ref": "#/$defs/baselineRef"
+    },
+    "hypothesis_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional reference to the hypothesis record this experiment tests."
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/candidate"
+      }
+    },
+    "hard_constraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/hardConstraint"
+      }
+    },
+    "soft_preferences": {
+      "type": "array",
+      "description": "Optional ranked preferences the agent may trade off; never gates."
+    },
+    "budget": {
+      "$ref": "#/$defs/budget"
+    },
+    "expected_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "authorization": {
+      "$ref": "#/$defs/authorization"
+    },
+    "source_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Provenance: who/what compiled this IR and from where."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 compile timestamp."
+    },
+    "content_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "sha256 over canonical_bytes of the document with this field excluded."
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "supersedes": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Optional content_hash of the superseded previous revision."
+    }
+  },
+  "$defs": {
+    "validationProtocolRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "n_folds"],
+      "properties": {
+        "strategy": {
+          "enum": ["stratified", "kfold", "time_based", "group"],
+          "description": "Closed vocabulary, must map 1:1 to pipeline.splits.make_folds dispatch."
+        },
+        "n_folds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "time_col": {
+          "type": "string"
+        },
+        "val_size_weeks": {
+          "type": "integer",
+          "description": "Positive value required by gate G2 when strategy=time_based."
+        },
+        "group_col": {
+          "type": "string",
+          "description": "Non-empty value required by gate G2 when strategy=group."
+        }
+      }
+    },
+    "metricDefinitionRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "direction"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "direction": {
+          "type": "string",
+          "description": "Legality (maximize|minimize) is enforced by gate G3, deliberately not by this schema, so that an illegal direction is a gate-level violation (new revision + supersedes) rather than an unloadable document."
+        }
+      }
+    },
+    "datasetSnapshotRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["uri", "sha256", "rows", "as_of"],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Digest of the immutable data snapshot."
+        },
+        "rows": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "label_cutoff": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Required by gate G1 when strategy=time_based; must be <= as_of."
+        }
+      }
+    },
+    "baselineRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseline_id", "protocol_ref", "score"],
+      "properties": {
+        "baseline_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "protocol_ref": {
+          "$ref": "#/$defs/validationProtocolRef"
+        },
+        "score": {
+          "type": "number",
+          "description": "Baseline score under protocol_ref; comparability requires protocol_ref == top-level validation_protocol_ref (gate G5)."
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_train_hours", "max_runs"],
+      "properties": {
+        "max_train_hours": {
+          "type": "number",
+          "description": "Positivity enforced by gate G4."
+        },
+        "max_runs": {
+          "type": "number",
+          "description": "Positivity enforced by gate G4."
+        }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authorized_by", "authorization_ref", "granted_at"],
+      "properties": {
+        "authorized_by": {
+          "type": "string",
+          "description": "Non-emptiness enforced by gate G6."
+        },
+        "authorization_ref": {
+          "type": "string",
+          "description": "Non-emptiness enforced by gate G6."
+        },
+        "granted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "hardConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "description", "check"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "check": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Machine-checkable predicate reference evaluated by the executor."
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_id", "family", "params"],
+      "properties": {
+        "candidate_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "family": {
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

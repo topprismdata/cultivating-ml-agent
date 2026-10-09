@@ -1,0 +1,75 @@
+{
+  "schema_version": "0.1.0",
+  "experiment_id": "exp-2026-001-store-sales",
+  "task_ref": "tasks/store-sales-demand/SPEC.md",
+  "world_state_ref": "world-state/2026-10-09.json",
+  "objective": "预测门店未来 4 周日销量，在固定验证协议下验证特征集 v7 相对基线的提升",
+  "dataset_snapshot_ref": {
+    "uri": "s3://cultivating-ml-agent/store-sales/train.parquet",
+    "sha256": "3f7a1c9e5b2d8f04a6c1e9b3d7f2a5c8e1b4d7f0a3c6e9b2d5f8a1c4e7b0d3f6",
+    "rows": 125497,
+    "as_of": "2026-09-30T00:00:00Z",
+    "label_cutoff": "2026-09-16T00:00:00Z"
+  },
+  "feature_set_ref": "features/store-sales/v7",
+  "validation_protocol_ref": {
+    "strategy": "time_based",
+    "n_folds": 1,
+    "val_size_weeks": 4
+  },
+  "metric_definition_ref": {
+    "name": "rmse",
+    "direction": "minimize"
+  },
+  "baseline_ref": {
+    "baseline_id": "naive-last-week",
+    "protocol_ref": {
+      "strategy": "time_based",
+      "n_folds": 1,
+      "val_size_weeks": 4
+    },
+    "score": 0.812
+  },
+  "candidates": [
+    {
+      "candidate_id": "lgb-v7-base",
+      "family": "lightgbm",
+      "params": {
+        "learning_rate": 0.05,
+        "num_leaves": 63,
+        "min_child_samples": 20
+      }
+    }
+  ],
+  "hard_constraints": [
+    {
+      "type": "leakage",
+      "description": "验证窗必须严格晚于训练窗，禁止未来标签进入训练",
+      "check": "pipeline.splits.time_based_folds: max(train_time) < min(val_time)"
+    }
+  ],
+  "soft_preferences": [
+    {
+      "name": "vectorized-features",
+      "weight": 0.2
+    }
+  ],
+  "budget": {
+    "max_train_hours": 6.0,
+    "max_runs": 24
+  },
+  "expected_artifacts": [
+    "oof.parquet",
+    "submission.csv",
+    "metrics.json"
+  ],
+  "authorization": {
+    "authorized_by": "ghb",
+    "authorization_ref": "auth/2026-10-09-exp-001.md",
+    "granted_at": "2026-10-09T08:00:00Z"
+  },
+  "source_ref": "human:ghb@2026-10-09",
+  "created_at": "2026-10-09T08:00:00Z",
+  "revision": 1,
+  "content_hash": "3dfb302d933240212607426003fc3c01a1134ddb519ed774853de986ae037fa3"
+}
