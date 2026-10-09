@@ -1,0 +1,17 @@
+{
+  "schema_version": "0.1.0",
+  "policy_id": "pol-promotion-default.v1",
+  "version": "1.0.0",
+  "supersedes": null,
+  "locked_at": "2026-10-09T00:00:00+00:00",
+  "policy_content_hash": "31d9ff878327c46b5efd3e8b2c9c3de905c4aa560057a004f52fe205fda80268",
+  "activation_authority": "A2",
+  "thresholds": {
+    "min_task_success": 3,
+    "min_task_families": 2,
+    "require_negative_case": true,
+    "min_negative_transfer": 1,
+    "max_evidence_age_days": 180,
+    "require_no_dispute": true
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cultivating-ml-agent:promotion-policy:0.1.0",
+  "title": "PromotionPolicy",
+  "description": "Pre-registered promotion thresholds (SPEC-007, GOV-001). Thresholds are locked at authoring time (locked_at) and pinned by policy_content_hash (sha256 over canonical content excluding policy_content_hash and locked_at); changing a threshold requires a new policy version with supersedes semantics. The policy only ever authorizes draft production (lifecycle_status=draft): activation stays a human/authority action (G4, ADR-001 'Not promotion').",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "policy_id",
+    "version",
+    "supersedes",
+    "locked_at",
+    "policy_content_hash",
+    "activation_authority",
+    "thresholds"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "description": "Contract version; a new semantic version requires a new schema directory."
+    },
+    "policy_id": {
+      "type": "string",
+      "pattern": "^pol-[A-Za-z0-9._-]+$",
+      "description": "Policy identity including the version suffix (e.g. pol-promotion-default.v1). Character set matches the ANF policy-record policy_id pattern, so the id can ride in capability-record.authority_constraints."
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-facing policy version; a threshold change is a new version, never an edit."
+    },
+    "supersedes": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^pol-[A-Za-z0-9._-]+$"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "policy_id of the superseded policy version; null for the first version. Retroactive threshold edits are prohibited (SPEC-007 §2)."
+    },
+    "locked_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 moment the thresholds were locked. Volatile field: never enters policy_content_hash, exactly like DecisionTrace created_at."
+    },
+    "policy_content_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "sha256 over canonical JSON of the policy minus {policy_content_hash, locked_at}. Loaders recompute it; a mismatch rejects the policy (tamper or post-hoc drift)."
+    },
+    "activation_authority": {
+      "enum": ["A0", "A1", "A2", "A3"],
+      "description": "Minimum ANF authority level required to activate (draft -> active). The interface never activates; it only records the floor (G4)."
+    },
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min_task_success",
+        "min_task_families",
+        "require_negative_case",
+        "min_negative_transfer",
+        "max_evidence_age_days",
+        "require_no_dispute"
+      ],
+      "properties": {
+        "min_task_success": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minimum count of task_success evidence entries."
+        },
+        "min_task_families": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minimum distinct non-empty task_family values among task_success evidence."
+        },
+        "require_negative_case": {
+          "type": "boolean",
+          "description": "When true, at least one negative_transfer evidence entry is mandatory; zero negative cases rejects (G4)."
+        },
+        "min_negative_transfer": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum count of negative_transfer evidence entries."
+        },
+        "max_evidence_age_days": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum evidence age in days, measured against the evaluation reference time; older evidence is stale."
+        },
+        "require_no_dispute": {
+          "type": "boolean",
+          "description": "When true, any unresolved dispute/contradiction evidence rejects promotion."
+        }
+      }
+    }
+  }
+}
