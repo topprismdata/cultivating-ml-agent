@@ -86,3 +86,38 @@ toolchain:
     spec: ci-subset
     role: "本 BOM 与 ML Profile YAML 工件解析依赖"
     locked_at: 2026-10-09
+
+# ==============================================================================
+# 本地领域路径依赖（untagged-local）
+# ==============================================================================
+# P4 跨域（SPEC-006）裁决：BOM 应记本地领域依赖——ADAPTER-002 的求解器往返
+# 真验（tests/test_adapters_pjp.py::TestRealSolverRoundTrip）读取本机领域仓
+# checkout；无 tag/commit 可锁（本地工作区，随开发漂移），故以 untagged-local
+# 如实标注而非伪装成锁定项。纪律：仅守卫测试路径使用（VISITMODEL_PATH 环境变量
+# 守卫，CI 无此路径自动 skip）；不入编译/执行路径；适配器仍以 JSON 信封为界、
+# 零求解器 import。引擎/领域仓发布可锁 ref 时，必须走新 BOM 版本转正。
+# ==============================================================================
+
+local_domain_paths:
+
+  - id: VisitModel
+    path: /Users/ghb/VisitModel
+    tag_status: untagged-local
+    role: "sp_solve_ip 求解器往返真验目标（4 店×4 日 fixture，SPEC-006 §7 测试分层）"
+    guard: "VISITMODEL_PATH 环境变量，先判非空再判存在"
+    locked_at: 2026-10-09
+
+  - id: VisitIR
+    path: /Users/ghb/VisitIR
+    tag_status: untagged-local
+    role: "VisitModel 顶层 import 依赖（visit_ir/contract）；0 基 sigma 语义的权威出处（visit_semantic_api）"
+    guard: "与 VisitModel 同级派生，存在才加入 sys.path"
+    locked_at: 2026-10-09
+
+  - id: OptiCore
+    path: /Users/ghb/OptiCore
+    tag_status: untagged-local
+    role: "VisitModel tsp 模块顶层 import 依赖（opticore.heuristics）；仅使 visitmodel 可导入"
+    guard: "与 VisitModel 同级派生，存在才加入 sys.path"
+    locked_at: 2026-10-09
+
