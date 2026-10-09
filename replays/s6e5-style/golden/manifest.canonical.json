@@ -1,0 +1,54 @@
+{
+  "schema_version": "0.1.0",
+  "case": "s6e5-style",
+  "note": "双跑回归金标。code_version 以 @CODE_VERSION@ 占位：若钉死具体 commit，每次提交都会使金标失效；占位符之外的每个字节（含指标位型、fold_sizes、data_sha256、oof_sha256）均由 tests/test_replay_reproducibility.py 逐字节回归。canonical_sha256 是占位态 canonical 的内容哈希；测试会用运行时的真实 code_version 回填后再对运行结果断言。evidence_stable 为去掉易变 timestamp 字段后的证据信封；evidence_content_sha256 为 evidence_content_hash 输出。",
+  "canonical": {
+    "schema_version": "0.1.0",
+    "ir_content_hash": "dab19f8a30494da7e8ec2e1f4f425dddf25bf78db4c92ad241580636eccd2307",
+    "code_version": "@CODE_VERSION@",
+    "data_sha256": "da5089b7ee31cbb2cf53255f4b380be8f9279aebc8b9c21de335181b472dc7c6",
+    "seed": 42,
+    "strategy": "time_based",
+    "n_folds": 1,
+    "fold_sizes": [
+      {
+        "train": 1948,
+        "val": 28
+      }
+    ],
+    "metrics": {
+      "rmsle": 0.09634419140396319
+    },
+    "oof_sha256": "1c0673a2f7f8a884b63180515c4aac914eaae38307cfa54ab63a07083d660bec",
+    "model_family": "ridge",
+    "model_params": {
+      "alpha": 1.0
+    }
+  },
+  "canonical_sha256": "4d43b5873e9e2101a1632119ac68a8dd0455dd472f98f9bd05381a842c5bfd2b",
+  "metrics": {
+    "rmsle": 0.09634419140396319
+  },
+  "evidence_stable": {
+    "evidence_id": "ev-dab19f8a3049",
+    "capability_id": "ml-experiment",
+    "skill_id": "experiment-run",
+    "evidence_type": "task_success",
+    "source_system": "cultivating",
+    "measurement_protocol": "{\"n_folds\":1,\"strategy\":\"time_based\",\"time_col\":\"date\",\"val_size_weeks\":4}",
+    "protocol_version": "0.1.0",
+    "metric_name": "rmsle",
+    "metric_value": 0.09634419140396319,
+    "metric_version": "framework-utils-metrics/1.0.0",
+    "executor": "framework/src/ir/runner.py",
+    "provenance_chain_id": "pch-dab19f8a3049",
+    "task_id": "replay-s6e5-rig-001",
+    "artifact_refs": [
+      {
+        "path": "outputs/oof/replay-s6e5-rig-001.csv",
+        "sha256": "1c0673a2f7f8a884b63180515c4aac914eaae38307cfa54ab63a07083d660bec"
+      }
+    ]
+  },
+  "evidence_content_sha256": "d7bb7468e9a9e49d5743859f2b450ac822a82b546551e565d9468d00e72b1120"
+}

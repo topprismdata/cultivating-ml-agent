@@ -1,0 +1,75 @@
+{
+  "schema_version": "0.1.0",
+  "experiment_id": "replay-s6e5-rig-001",
+  "task_ref": "tasks/s6e5-rig-replay/SPEC.md",
+  "world_state_ref": "world-state/2026-10-09.json",
+  "objective": "在固定 time_based 验证协议下重放 S6E5 风格表格时序回归，验证同 IR + 同数据哈希 + 同代码版本 + 同种子产生逐字节一致的规范哈希与指标",
+  "dataset_snapshot_ref": {
+    "uri": "replays/s6e5-style/fixtures/train.csv",
+    "sha256": "da5089b7ee31cbb2cf53255f4b380be8f9279aebc8b9c21de335181b472dc7c6",
+    "rows": 2000,
+    "as_of": "2026-06-23T00:00:00Z",
+    "label_cutoff": "2026-05-26T00:00:00Z"
+  },
+  "feature_set_ref": "replays/s6e5-style/fixtures#columns-v1",
+  "validation_protocol_ref": {
+    "strategy": "time_based",
+    "n_folds": 1,
+    "time_col": "date",
+    "val_size_weeks": 4
+  },
+  "metric_definition_ref": {
+    "name": "rmsle",
+    "direction": "minimize"
+  },
+  "baseline_ref": {
+    "baseline_id": "replay-s6e5-rig-baseline",
+    "protocol_ref": {
+      "strategy": "time_based",
+      "n_folds": 1,
+      "time_col": "date",
+      "val_size_weeks": 4
+    },
+    "score": 0.35
+  },
+  "candidates": [
+    {
+      "candidate_id": "ridge-v1",
+      "family": "ridge",
+      "params": {
+        "alpha": 1.0
+      }
+    },
+    {
+      "candidate_id": "hgb-v1",
+      "family": "hgb",
+      "params": {
+        "max_iter": 200,
+        "learning_rate": 0.08
+      }
+    }
+  ],
+  "hard_constraints": [
+    {
+      "type": "leakage",
+      "description": "验证窗必须严格晚于训练窗，禁止未来标签进入训练",
+      "check": "pipeline.splits.time_based_folds: max(train_time) < min(val_time)"
+    }
+  ],
+  "budget": {
+    "max_train_hours": 0.5,
+    "max_runs": 8
+  },
+  "expected_artifacts": [
+    "outputs/oof/replay-s6e5-rig-001.csv"
+  ],
+  "authorization": {
+    "authorized_by": "ghb",
+    "authorization_ref": "auth/2026-10-09-replay-s6e5.md",
+    "granted_at": "2026-10-09T08:00:00Z"
+  },
+  "source_ref": "human:ghb@2026-10-09",
+  "created_at": "2026-10-09T08:00:00Z",
+  "revision": 1,
+  "content_hash": "dab19f8a30494da7e8ec2e1f4f425dddf25bf78db4c92ad241580636eccd2307"
+}
