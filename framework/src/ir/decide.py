@@ -189,15 +189,18 @@ def _state_snapshot(
     results: Mapping[str, Any],
     ordered_ids: list[str],
 ) -> dict:
-    """Winner-manifest state triple; without a winner, the first available
-    run manifest (IR candidate order), else the IR's own declarations."""
+    """Decided-IR hash plus winner-manifest data/code triple; without a
+    winner, the first available run manifest (IR candidate order), else the
+    IR's own declarations. ir_content_hash always refers to the IR under
+    decision (candidates may execute under rotated revisions), so the trace
+    stays anchored to the authorized contract."""
     for candidate_id in ordered_ids:
         run = results.get(candidate_id)
         if run is None:
             continue
         canonical = run.manifest["canonical"]
         return {
-            "ir_content_hash": canonical["ir_content_hash"],
+            "ir_content_hash": ir.get("content_hash", ""),
             "data_sha256": canonical["data_sha256"],
             "code_version": canonical["code_version"],
         }
@@ -414,7 +417,7 @@ def decide(
     return {
         "intent_ref": ir.get("hypothesis_ref") or ir["experiment_id"],
         "state_snapshot_ref": {
-            "ir_content_hash": winner_canonical["ir_content_hash"],
+            "ir_content_hash": ir.get("content_hash", ""),
             "data_sha256": winner_canonical["data_sha256"],
             "code_version": winner_canonical["code_version"],
         } if selected_option is not None else _state_snapshot(ir, results, ordered_ids),

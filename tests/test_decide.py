@@ -161,9 +161,10 @@ def test_state_refs_uncertainty_and_provenance(replay):
     )
     winner_run = run_ridge if best_value == run_ridge.canonical["metrics"]["rmsle"] else run_hgb
 
-    # state_snapshot_ref comes from the winner's manifest.
+    # state_snapshot_ref: ir_content_hash anchors the decided IR (candidates
+    # may execute under rotated revisions); data/code come from the winner.
     assert outcome["state_snapshot_ref"] == {
-        "ir_content_hash": winner_run.canonical["ir_content_hash"],
+        "ir_content_hash": ir["content_hash"],
         "data_sha256": winner_run.canonical["data_sha256"],
         "code_version": winner_run.canonical["code_version"],
     }
@@ -223,10 +224,10 @@ def test_worse_than_baseline_rejects_everything():
     }
     assert outcome["uncertainty"]["margin"] is None
     assert outcome["uncertainty"]["metric_std"] is None
-    # Without a winner the state falls back to the first available manifest
-    # (IR candidate order).
+    # Without a winner the state still anchors the decided IR (ir_content_hash);
+    # data/code come from the first available manifest (IR candidate order).
     assert outcome["state_snapshot_ref"] == {
-        "ir_content_hash": "a" * 64,
+        "ir_content_hash": ir["content_hash"],
         "data_sha256": "b" * 64,
         "code_version": "test-code-version",
     }

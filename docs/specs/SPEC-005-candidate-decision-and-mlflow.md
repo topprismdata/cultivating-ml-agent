@@ -61,7 +61,9 @@ decide(ir, results) -> dict          # results: {candidate_id: RunResult}
   │               worse_than_baseline / below_min_improvement /
   │               lost_to_selected
   │
-  └─ ⑥ 组装       state_snapshot_ref 取胜者 manifest；uncertainty 按
+  └─ ⑥ 组装       state_snapshot_ref 的 ir_content_hash 取被决策 IR 本身
+                   （候选可在轮换修订下执行，trace 锚定授权契约）；
+                   data_sha256/code_version 取胜者 manifest；uncertainty 按
                   §4 规则；evidence_refs 取各候选 oof_sha256
 ```
 
