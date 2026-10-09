@@ -1,0 +1,32 @@
+{
+  "@context": {
+    "prism-core": "prism://ontology/core/",
+    "prism-ml": "prism://ontology/ml/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "sh": "http://www.w3.org/ns/shacl#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+
+    "MLTask": { "@id": "prism://ontology/ml/MLTask" },
+    "DatasetSnapshot": { "@id": "prism://ontology/ml/DatasetSnapshot" },
+    "FeatureSet": { "@id": "prism://ontology/ml/FeatureSet" },
+    "ValidationProtocol": { "@id": "prism://ontology/ml/ValidationProtocol" },
+    "MetricDefinition": { "@id": "prism://ontology/ml/MetricDefinition" },
+    "ExperimentPlan": { "@id": "prism://ontology/ml/ExperimentPlan" },
+    "ExperimentRun": { "@id": "prism://ontology/ml/ExperimentRun" },
+    "ModelArtifact": { "@id": "prism://ontology/ml/ModelArtifact" },
+    "TransferEvidence": { "@id": "prism://ontology/ml/TransferEvidence" },
+    "Hypothesis": { "@id": "prism://ontology/ml/Hypothesis" },
+
+    "kind": { "@id": "prism://ontology/ml/kind" },
+    "taskType": { "@id": "prism://ontology/ml/taskType" },
+    "datasetFingerprint": { "@id": "prism://ontology/ml/datasetFingerprint" },
+    "featureCount": { "@id": "prism://ontology/ml/featureCount" },
+    "splitStrategy": { "@id": "prism://ontology/ml/splitStrategy" },
+    "metricName": { "@id": "prism://ontology/ml/metricName" },
+    "runId": { "@id": "prism://ontology/ml/runId" },
+    "artifactUri": { "@id": "prism://ontology/ml/artifactUri" },
+    "decisionTraceRef": { "@id": "prism://ontology/ml/decisionTraceRef" },
+    "statement": { "@id": "prism://ontology/ml/statement" }
+  }
+}

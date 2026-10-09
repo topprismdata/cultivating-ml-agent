@@ -1,0 +1,195 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prism-core: <prism://ontology/core/> .
+@prefix prism-ml: <prism://ontology/ml/> .
+
+# =============================================================================
+# ML Profile v0.1.0 草案约束 (status: local / pending_proposal)
+# 注：pyshacl 未接入，本版仅做语法级自检（@prefix 配对、分号句法目检）；
+#     语义级校验待 prism-ontology 治理 CI 接入 pyshacl 后执行。
+# =============================================================================
+
+# 1. MLTask：机器学习任务（kind 判别 + 任务类型声明）
+prism-ml:MLTaskShape a sh:NodeShape ;
+    sh:targetClass prism-ml:MLTask ;
+    sh:property [
+        sh:path prism-ml:kind ;
+        sh:hasValue "MLTask" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "MLTask 实例必须携带唯一 kind='MLTask'"@zh ;
+    ] ;
+    sh:property [
+        sh:path prism-ml:taskType ;
+        sh:minCount 1 ;
+        sh:message "MLTask 必须声明 taskType（如 regression / classification / clustering）"@zh ;
+    ] .
+
+# 2. DatasetSnapshot：数据集快照（kind + sha256 指纹）
+prism-ml:DatasetSnapshotShape a sh:NodeShape ;
+    sh:targetClass prism-ml:DatasetSnapshot ;
+    sh:property [
+        sh:path prism-ml:kind ;
+        sh:hasValue "DatasetSnapshot" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "DatasetSnapshot 实例必须携带唯一 kind='DatasetSnapshot'"@zh ;
+    ] ;
+    sh:property [
+        sh:path prism-ml:datasetFingerprint ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-f0-9]{64}$" ;
+        sh:message "DatasetSnapshot 必须携带恰好一个 sha256 十六进制指纹（64 位小写）"@zh ;
+    ] .
+
+# 3. FeatureSet：特征集（kind + 特征计数）
+prism-ml:FeatureSetShape a sh:NodeShape ;
+    sh:targetClass prism-ml:FeatureSet ;
+    sh:property [
+        sh:path prism-ml:kind ;
+        sh:hasValue "FeatureSet" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "FeatureSet 实例必须携带唯一 kind='FeatureSet'"@zh ;
+    ] ;
+    sh:property [
+        sh:path prism-ml:featureCount ;
+        sh:minCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "FeatureSet 必须声明特征数量 featureCount（整数）"@zh ;
+    ] .
+
+# 4. ValidationProtocol：验证协议（kind + 四策略封闭词表）
+prism-ml:ValidationProtocolShape a sh:NodeShape ;
+    sh:targetClass prism-ml:ValidationProtocol ;
+    sh:property [
+        sh:path prism-ml:kind ;
+        sh:hasValue "ValidationProtocol" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "ValidationProtocol 实例必须携带唯一 kind='ValidationProtocol'"@zh ;
+    ] ;
+    sh:property [
+        sh:path prism-ml:splitStrategy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "stratified" "kfold" "time_based" "group" ) ;
+        sh:message "splitStrategy 必须取封闭词表之一：stratified / kfold / time_based / group（对应 splits.py make_folds 四策略）"@zh ;
+    ] .
+
+# 5. MetricDefinition：度量定义（kind + 受管度量名）
+prism-ml:MetricDefinitionShape a sh:NodeShape ;
+    sh:targetClass prism-ml:MetricDefinition ;
+    sh:property [
+        sh:path prism-ml:kind ;
+        sh:hasValue "MetricDefinition" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "MetricDefinition 实例必须携带唯一 kind='MetricDefinition'"@zh ;
+    ] ;
+    sh:property [
+        sh:path prism-ml:metricName ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "MetricDefinition 必须声明 metricName（如 RMSLE / AUC）"@zh ;
+    ] .
+
+# 6. ExperimentPlan：实验计划（kind + 至少绑定一个验证协议）
+prism-ml:ExperimentPlanShape a sh:NodeShape ;
+    sh:targetClass prism-ml:ExperimentPlan ;
+    sh:property [
+        sh:path prism-ml:kind ;
+        sh:hasValue "ExperimentPlan" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "ExperimentPlan 实例必须携带唯一 kind='ExperimentPlan'"@zh ;
+    ] ;
+    sh:property [
+        sh:path prism-ml:hasValidationProtocol ;
+        sh:minCount 1 ;
+        sh:message "ExperimentPlan 必须绑定至少一个 ValidationProtocol（防泄漏硬门禁载体）"@zh ;
+    ] .
+
+# 7. ExperimentRun：实验运行（kind + 运行标识）
+prism-ml:ExperimentRunShape a sh:NodeShape ;
+    sh:targetClass prism-ml:ExperimentRun ;
+    sh:property [
+        sh:path prism-ml:kind ;
+        sh:hasValue "ExperimentRun" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "ExperimentRun 实例必须携带唯一 kind='ExperimentRun'"@zh ;
+    ] ;
+    sh:property [
+        sh:path prism-ml:runId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^run-[A-Za-z0-9._-]+$" ;
+        sh:message "ExperimentRun 必须携带恰好一个 runId，形如 run-<标识>"@zh ;
+    ] .
+
+# 8. ModelArtifact：模型工件（kind + 工件 URI）
+prism-ml:ModelArtifactShape a sh:NodeShape ;
+    sh:targetClass prism-ml:ModelArtifact ;
+    sh:property [
+        sh:path prism-ml:kind ;
+        sh:hasValue "ModelArtifact" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "ModelArtifact 实例必须携带唯一 kind='ModelArtifact'"@zh ;
+    ] ;
+    sh:property [
+        sh:path prism-ml:artifactUri ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "ModelArtifact 必须以 IRI 形式声明至少一个 artifactUri"@zh ;
+    ] .
+
+# 9. TransferEvidence：迁移证据（kind + DecisionTrace 回指，ADR-002）
+prism-ml:TransferEvidenceShape a sh:NodeShape ;
+    sh:targetClass prism-ml:TransferEvidence ;
+    sh:property [
+        sh:path prism-ml:kind ;
+        sh:hasValue "TransferEvidence" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "TransferEvidence 实例必须携带唯一 kind='TransferEvidence'"@zh ;
+    ] ;
+    sh:property [
+        sh:path prism-ml:decisionTraceRef ;
+        sh:minCount 1 ;
+        sh:pattern "^er-[A-Za-z0-9._-]+@" ;
+        sh:message "TransferEvidence 必须回指 DecisionTrace：decisionTraceRef 需为 er-<decision_id>@<status> 规范形式（ADR-002）"@zh ;
+    ] .
+
+# 10. Hypothesis：假设（kind + 可证伪陈述；父类 Claim 属净新增提案）
+prism-ml:HypothesisShape a sh:NodeShape ;
+    sh:targetClass prism-ml:Hypothesis ;
+    sh:property [
+        sh:path prism-ml:kind ;
+        sh:hasValue "Hypothesis" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Hypothesis 实例必须携带唯一 kind='Hypothesis'"@zh ;
+    ] ;
+    sh:property [
+        sh:path prism-ml:statement ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Hypothesis 必须携带至少一条可证伪陈述 statement"@zh ;
+    ] .
+
+# =============================================================================
+# 11. 执行禁令：EvaluationResult 显式不设实体 (ADR-002)
+#     评估结果一律落成 ANF evidence-envelope，完整保真在 DecisionTrace。
+# =============================================================================
+prism-ml:ProhibitEvaluationResultShape a sh:NodeShape ;
+    sh:targetClass prism-ml:EvaluationResult ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:maxCount 0 ;
+        sh:message "ML Profile 显式不设 EvaluationResult 实体：评估结果一律落成 ANF evidence-envelope（见 docs/adr/ADR-002-decision-trace-boundary.md）"@zh ;
+    ] .
