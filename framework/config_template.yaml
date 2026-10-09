@@ -22,7 +22,7 @@ data:
 training:
   n_folds: 5
   random_state: 42
-  cv_strategy: "stratified"   # stratified|kfold|time_based|group
+  strategy: "stratified"      # stratified|kfold|time_based|group
 
 mlflow:
   experiment_name: ""         # Will be set from slug if empty
