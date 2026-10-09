@@ -1,0 +1,118 @@
+# ==============================================================================
+# concepts.yaml
+# cultivating-ml-agent ML Profile 概念清单 (ML Profile v0.1.0 草案)
+# ==============================================================================
+# 局部命名空间 (status: local, governance_status: pending_proposal)：
+# 本清单中的概念 URI 为提案性质，尚未进入 prism-ontology 共享核心；
+# 治理通过前仅可在本 Profile 内使用，禁止跨 Profile 复用。
+# 晋升路径（MS-PROP 提案批次 -> prism-ontology 治理 -> dist 发布）见 README.md。
+# ==============================================================================
+
+version: 0.1.0
+profile: prism://ontology/profiles/ml-profile
+
+namespace:
+  prefix: prism-ml
+  uri: prism://ontology/ml/
+  status: local
+  governance_status: pending_proposal
+  note: "命名空间授予以 prism-ontology 治理评审结果为准；评审前 URI 仅为占位提案。"
+
+concepts:
+  # ---------------------------------------------------------------------------
+  # 绑定共享核心父类的受管概念（parent 均为 prism-core 既有实体）
+  # ---------------------------------------------------------------------------
+  - uri: prism:ml/MLTask
+    name: 机器学习任务
+    category: ML
+    status: local
+    governance_status: pending_proposal
+    parent: prism:core/Activity
+    definition: "一次以泛化预测为目标的机器学习任务意图；只圈定问题边界（数据、验证、度量选型），不携带任何执行状态。"
+
+  - uri: prism:ml/DatasetSnapshot
+    name: 数据集快照
+    category: ML
+    status: local
+    governance_status: pending_proposal
+    parent: prism:core/InformationObject
+    definition: "训练/评估所用数据的不可变指纹视图：行集、特征列、时间窗口与切分冻结点；一经冻结不得原地修改，任何变更产生新快照。"
+
+  - uri: prism:ml/FeatureSet
+    name: 特征集
+    category: ML
+    status: local
+    governance_status: pending_proposal
+    parent: prism:core/InformationObject
+    definition: "在 DatasetSnapshot 之上声明的一组派生特征及其构造定义；构造过程必须是纯函数、可重放、零求解器依赖。"
+
+  - uri: prism:ml/ValidationProtocol
+    name: 验证协议
+    category: ML
+    status: local
+    governance_status: pending_proposal
+    parent: prism:core/InformationObject
+    definition: "切分策略与折结构的声明（stratified / kfold / time_based / group 四策略，见 framework/src/pipeline/splits.py make_folds）；是防泄漏硬门禁的声明载体。"
+
+  - uri: prism:ml/MetricDefinition
+    name: 度量定义
+    category: ML
+    status: local
+    governance_status: pending_proposal
+    parent: prism:core/InformationObject
+    definition: "受管评估度量（如 RMSLE / AUC）及其聚合方式与硬门禁阈值；与 framework/src/pipeline/validate.py 的门禁判定绑定。"
+
+  - uri: prism:ml/ExperimentPlan
+    name: 实验计划
+    category: ML
+    status: local
+    governance_status: pending_proposal
+    parent: prism:core/Plan
+    definition: "一次实验的完整编译单元：任务、快照、特征集、验证协议、度量与候选假设的绑定声明；编译后不得被自然语言代理隐式修改，变更必须产生新版本。"
+
+  - uri: prism:ml/ExperimentRun
+    name: 实验运行
+    category: ML
+    status: local
+    governance_status: pending_proposal
+    parent: prism:core/Activity
+    definition: "ExperimentPlan 的一次确定性执行实例；消耗计划、产出 OOF 帧、模型工件与证据信封，不做计划外决策。"
+
+  - uri: prism:ml/ModelArtifact
+    name: 模型工件
+    category: ML
+    status: local
+    governance_status: pending_proposal
+    parent: prism:core/InformationObject
+    definition: "ExperimentRun 落盘的模型对象及其元数据（训练配置、数据/特征指纹、父计划引用）；只读，可复演。"
+
+  - uri: prism:ml/TransferEvidence
+    name: 迁移证据
+    category: ML
+    status: local
+    governance_status: pending_proposal
+    parent: prism:core/Evidence
+    definition: "跨任务/跨竞赛复用经验时必须携带的依据记录；必须可回指 DecisionTrace（decision_trace_ref，见 docs/adr/ADR-002-decision-trace-boundary.md）。"
+
+  # ---------------------------------------------------------------------------
+  # 特殊处置 1：Hypothesis（父类 Claim 属共享核心净新增提案）
+  # ---------------------------------------------------------------------------
+  - uri: prism:ml/Hypothesis
+    name: 假设
+    category: ML
+    status: local
+    governance_status: proposed_local
+    parent: prism:core/Claim
+    definition: "对『某改动会改善某度量』的可证伪陈述；进入 ExperimentPlan 的候选集合，运行后由证据支持或证伪，只能证伪不能证真。"
+    note: "父类 prism:core/Claim 尚不在共享核心，属净新增提案（见 mappings.yaml core_proposals，归属 ADR-001 提案批次）；故本概念 governance_status 随父类为 proposed_local。"
+
+  # ---------------------------------------------------------------------------
+  # 特殊处置 2：EvaluationResult（显式不设实体）
+  # ---------------------------------------------------------------------------
+  - uri: prism:ml/EvaluationResult
+    name: 评估结果
+    category: ML
+    status: no_entity
+    entity: false
+    parent: null
+    rationale: "显式不设实体（ADR-002 决议）：评估结果一律落成 ANF evidence-envelope（agent-nurture-framework@33f444b schemas/evidence-envelope.schema.json），完整决策保真唯一归属 DecisionTrace，本 Profile 只投影指针。SHACL 侧以 prism-ml:ProhibitEvaluationResultShape 禁止实例化。"

@@ -1,0 +1,110 @@
+# ==============================================================================
+# mappings.yaml
+# ML Profile 概念 -> 共享核心 (prism-core) 映射表
+# ==============================================================================
+# 两部分内容：
+# 1) concept_mappings：ML 局部概念到 prism-core 既有实体的映射及理由；
+# 2) core_proposals：共享核心 8 项净新增提案（proposed_local），
+#    归属 ADR-001 提案批次（本表仅引用，不修改 ADR-001）。
+# EvaluationResult 显式不设实体，故无映射条目（见 non_entity_notes）。
+# ==============================================================================
+
+version: 0.1.0
+profile: prism://ontology/profiles/ml-profile
+governance_status: mapping_only
+description: "ML Profile 受管概念的共享核心映射与净新增提案登记（草案，pending_proposal）。"
+
+concept_mappings:
+  - subject: prism:ml/MLTask
+    target: prism:core/Activity
+    relation: subClassOf
+    rationale: "任务是有时间边界、有意图产出的活动；落 Activity 而非 InformationObject，避免把意图物化成文档。"
+
+  - subject: prism:ml/DatasetSnapshot
+    target: prism:core/InformationObject
+    relation: subClassOf
+    rationale: "快照是关于数据集的陈述（指纹 + 冻结点），不是数据本身；信息对象语义精确匹配不可变声明。"
+
+  - subject: prism:ml/FeatureSet
+    target: prism:core/InformationObject
+    relation: subClassOf
+    rationale: "特征集是构造定义的信息对象；纯函数可重放，定义与数据分离。"
+
+  - subject: prism:ml/ValidationProtocol
+    target: prism:core/InformationObject
+    relation: subClassOf
+    rationale: "切分/折结构声明是可校验的信息对象，承载防泄漏硬门禁；与具体数据解耦以便复用。"
+
+  - subject: prism:ml/MetricDefinition
+    target: prism:core/InformationObject
+    relation: subClassOf
+    rationale: "度量与阈值是受管定义；与 outlet-insight 样板中 prism:insight/MetricDefinition 的定位同构，便于日后对齐。"
+
+  - subject: prism:ml/ExperimentPlan
+    target: prism:core/Plan
+    relation: subClassOf
+    rationale: "计划是意图与步骤的绑定声明，编译后版本化、不可隐式改写——正是 Plan 的语义；不落 Activity 以区分计划与执行。"
+
+  - subject: prism:ml/ExperimentRun
+    target: prism:core/Activity
+    relation: subClassOf
+    rationale: "运行是活动的执行实例：消耗 Plan、产出工件与证据；有起止、有簿记，Activity 语义完备。"
+
+  - subject: prism:ml/ModelArtifact
+    target: prism:core/InformationObject
+    relation: subClassOf
+    rationale: "工件是可复演模型及其元数据的只读信息对象；引用指纹而非内嵌数据。"
+
+  - subject: prism:ml/TransferEvidence
+    target: prism:core/Evidence
+    relation: subClassOf
+    rationale: "迁移复用经验本质是证据，必须满足证据的可回指性（decision_trace_ref，ADR-002）。"
+
+  - subject: prism:ml/Hypothesis
+    target: prism:core/Claim
+    relation: subClassOf
+    governance_status: proposed_local
+    rationale: "假设是可证伪主张；父类 Claim 尚不在共享核心，属净新增提案，随 core_proposals 一并走治理。"
+
+non_entity_notes:
+  - subject: prism:ml/EvaluationResult
+    reason: "显式不设实体，不参与映射：评估结果一律落成 ANF evidence-envelope，完整保真在 DecisionTrace（docs/adr/ADR-002-decision-trace-boundary.md）。"
+
+core_proposals:
+  batch: "ADR-001 提案批次"
+  batch_reference: "docs/adr/ADR-001（ExperimentIR 线维护；本表仅引用提案批次，不修改该文档）"
+  governance_status: proposed_local
+  note: "以下 8 项为共享核心净新增提案；治理通过前仅可被本 Profile 与 ExperimentIR 草案以 proposed_local 身份引用，禁止跨 Profile 复用。"
+
+  proposals:
+    - uri: prism:core/WorldStateRef
+      name: 世界状态引用
+      rationale: "以只读引用刻画实验所见的初始状态；显式杜绝任何对世界状态的直接写入效应。"
+
+    - uri: prism:core/Task
+      name: 任务
+      rationale: "跨域通用的任务指派对象；outlet-insight 场景将 execution/Task 列为禁用执行概念，ML 场景以声明式 Task 承接意图而不触发执行语义。"
+
+    - uri: prism:core/Goal
+      name: 目标
+      rationale: "可判定的达成条件声明，供快筛分层判断通过/证伪。"
+
+    - uri: prism:core/Candidate
+      name: 候选
+      rationale: "进入比较的可选项（模型 / 特征 / 参数候选）；与 Claim、Outcome 分离以避免自证。"
+
+    - uri: prism:core/Execution
+      name: 执行
+      rationale: "纯函数式执行簿记；零求解器依赖，与 VisitIR 家法一致。"
+
+    - uri: prism:core/Claim
+      name: 主张
+      rationale: "可证伪主张的通用载体；Hypothesis 的目标父类。"
+
+    - uri: prism:core/Outcome
+      name: 结果
+      rationale: "执行后的事实记录；与 Claim 分离，主张由独立证据评判。"
+
+    - uri: prism:core/Capability
+      name: 能力
+      rationale: "可复用能力登记；与 agent-nurture-framework@33f444b 的 capability-record 语义对齐。"
