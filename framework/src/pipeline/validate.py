@@ -31,7 +31,8 @@ def validate_pipeline(
         test: Test DataFrame.
         cfg: CompetitionConfig (optional, used for target_col/id_col fallback).
         stage: Pipeline stage name for logging.
-        target_col: Name of target column. If None, tries cfg.target_col.
+        target_col: Name of target column. If None, tries cfg.data.target_col
+            then top-level cfg.target_col.
         allow_train_test_mismatch: Set True for recommendation tasks where
             train/test column sets may differ naturally.
 
@@ -40,7 +41,8 @@ def validate_pipeline(
         Raises PipelineValidationError on critical errors.
     """
     if cfg is not None and target_col is None:
-        target_col = getattr(cfg, "target_col", None)
+        data_cfg = getattr(cfg, "data", None)
+        target_col = getattr(data_cfg, "target_col", None) or getattr(cfg, "target_col", None)
 
     errors: list[str] = []
     warnings: list[str] = []
@@ -79,7 +81,8 @@ def validate_pipeline(
 
     # 6. ID column uniqueness (if configured)
     if cfg is not None:
-        id_col = getattr(cfg, "id_col", None)
+        data_cfg = getattr(cfg, "data", None)
+        id_col = getattr(data_cfg, "id_col", None) or getattr(cfg, "id_col", None)
         if id_col and id_col in test.columns:
             n_unique = test[id_col].nunique()
             if n_unique != len(test):
