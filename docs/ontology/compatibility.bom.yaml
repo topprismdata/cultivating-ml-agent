@@ -1,0 +1,88 @@
+# ==============================================================================
+# compatibility.bom.yaml
+# cultivating-ml-agent ML Profile 兼容性物料清单 (Compatibility BOM)
+# ==============================================================================
+# 计划 G0 硬约束：全部外部 Profile / 依赖必须带 tag / commit 与锁定日期；
+# 无锁定项不得进入编译或执行路径。
+# SHA 值为 2026-10-09 锁定时给定的精确值，修改必须走新的 BOM 版本。
+# ==============================================================================
+
+version: 1.0.0
+bom: cultivating-ml-agent-profile-compatibility
+locked_at: 2026-10-09
+policy: "每项外部依赖必须附 role 与 locked_at；SHA 一经锁定不可变。"
+
+external_profiles:
+
+  - id: prism-ontology
+    ref: 9d93a99
+    role: "上游参考本体与样板来源（outlet-insight profile 骨架、prism-core 父类语义）"
+    locked_at: 2026-10-09
+
+  - id: agent-nurture-framework
+    ref: 33f444b
+    role: "经验/能力/证据/策略记录 JSON Schema 的权威来源（ADR-002 投影边界的数据面）"
+    schemas:
+      - capability-record
+      - experience-record
+      - evidence-envelope
+      - policy-record
+    locked_at: 2026-10-09
+
+  - id: skill-tester
+    ref: c5022b8
+    role: "技能资产验收工具链（ML Profile 产出的经验条目入库前校验）"
+    locked_at: 2026-10-09
+
+  - id: VisitIR
+    ref: cd2ce48
+    role: "家法样板：纯函数、零求解器依赖、只能证伪不能证真的快筛分层——本 Profile 概念语义的对齐参照"
+    locked_at: 2026-10-09
+
+  - id: VisitModel
+    ref: 0dd8bbb
+    role: "VisitIR 配套模型层参照（模型工件 ModelArtifact 的生命周期先例）"
+    locked_at: 2026-10-09
+
+  - id: Territory-IR
+    ref: 41fc2bd
+    role: "领域 IR 先例参照（局部命名空间与治理晋升路径的对照样本）"
+    locked_at: 2026-10-09
+
+  - id: cultivating-ml-agent
+    branch: main
+    ref: 6e58f52
+    role: "本仓库基线（含 P0 修复：splits.py 四策略 CV、validate.py、oof.py）；ML Profile 字段引用的框架锚点"
+    locked_at: 2026-10-09
+
+toolchain:
+
+  - id: python
+    spec: "3.10 / 3.12"
+    role: "CI 运行时矩阵"
+    locked_at: 2026-10-09
+
+  - id: jsonschema
+    spec: 4.x
+    role: "ANF schema 校验（evidence-envelope / experience-record 导出适配器验证）"
+    locked_at: 2026-10-09
+
+  - id: scikit-learn
+    spec: ci-subset
+    role: "splits.py 四策略切分（StratifiedKFold / KFold / GroupKFold）依赖"
+    locked_at: 2026-10-09
+
+  - id: numpy
+    spec: ci-subset
+    role: "OOF 帧与数值管线基础依赖"
+    locked_at: 2026-10-09
+
+  - id: pandas
+    spec: ci-subset
+    role: "OOF 帧构建（oof.py build_oof_frame）依赖"
+    locked_at: 2026-10-09
+
+  - id: pyyaml
+    spec: ci-subset
+    role: "本 BOM 与 ML Profile YAML 工件解析依赖"
+    locked_at: 2026-10-09
