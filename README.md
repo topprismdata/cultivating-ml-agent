@@ -172,6 +172,19 @@ tests/                    共享组件检查
 
 ## 最新里程碑（沿用历史 changelog，保留为证据）
 
+### v0.11.0 (2026-10-09) — Ontology Upgrade（本体化升级，P0–P5）
+
+对照计划基线 v0.1 完成六阶段本体化升级。**门禁状态与证据：[docs/gates/GATE-STATUS.md](docs/gates/GATE-STATUS.md)**（G0–G5 逐门）。
+
+- **P0** — 跨仓库职责与禁区成文（`docs/adr/ADR-001`）；兼容性 BOM 全依赖锁定（`docs/ontology/compatibility.bom.yaml`）；ML Profile 0.1.0 草案（局部命名空间，`docs/ontology/ml-profile/0.1.0/`）
+- **P1** — ExperimentIR 契约：六硬门 + content_hash + 拒载（`docs/specs/SPEC-001`，`tests/test_experiment_ir.py`）
+- **P2** — 确定性复演：双跑同哈希 + golden 回归（`docs/specs/SPEC-003`，`tests/test_replay_reproducibility.py`）
+- **P3** — DecisionTrace：状态机 + 四眼原则 + 负例拒绝 + 防篡改链（`docs/specs/SPEC-004`/`SPEC-005`、`docs/adr/ADR-002`，`tests/test_decision_trace.py` + `tests/test_decide.py`）
+- **P4** — 跨域估计交换：四列分列报告 + 适配器零求解器依赖 + 真求解器往返真验（`docs/specs/SPEC-006`，`tests/test_cross_domain_report.py` + `tests/test_adapters_pjp.py`）
+- **P5** — 治理双线：8 项共享核心净新增概念以提案批次草案上推（`docs/ontology/proposals/ml-core-batch-001/`，status: draft，未提交上游）；晋级门禁（预注册阈值，禁止自动晋升）由 `upgrade/p5-governance` 分支落地（G4 现状与转入条件见 GATE-STATUS）
+
+> 版本号说明：pyproject 自 0.8.4 修正至 0.11.0 —— 仓库历史已发布 v0.9.0 / v0.10.0 里程碑而 pyproject 未随动，本次对齐，非新增功能版本。
+
 ### v0.9.0 (2026-08-05) — Time-Series & Recommendation Era
 
 新增 3 个 skills（基于零售 SKU 推荐项目实战经验）：

@@ -4,7 +4,7 @@ build-backend = "setuptools.backends._legacy:_Backend"
 
 [project]
 name = "cultivating-ml-agent"
-version = "0.8.4"
+version = "0.11.0"
 description = "Knowledge crystallization framework for training ML agents from novice to competition Top 10%"
 readme = "README.md"
 license = {text = "MIT"}
