@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cultivating-ml-agent:estimate-envelope:0.1.0",
+  "title": "EstimateEnvelope",
+  "description": "跨域估计交换信封 (SPEC-006, 计划基线 v0.1 §7/§12)。ML 侧只产出估计值 + 残差尺度 (sigma) + 量化声明；硬约束求解由领域求解器独立执行，本信封永不携带求解器语句或店级 int idx（D7：int idx 不配当身份，unit_id 必须是稳定编码字符串）。业务 KPI 是领域上报事实，永不写入本信封的 ML 指标字段。identity 纪律：created_at 不入哈希；content_hash = sha256(canonical(envelope - {created_at, content_hash, envelope_id}))；envelope_id = 'env-' + content_hash 前 12 hex。无 uuid4、无墙钟入哈希。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "envelope_id",
+    "estimate_kind",
+    "created_at",
+    "model_provenance",
+    "units",
+    "quantization_rule",
+    "value_unit",
+    "content_hash"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "description": "EstimateEnvelope 契约版本；语义变更新开 schema 目录。"
+    },
+    "envelope_id": {
+      "type": "string",
+      "pattern": "^env-[0-9a-f]{12}$",
+      "description": "sha256 派生身份：'env-' + content_hash 前 12 hex；无 uuid4、无时钟。"
+    },
+    "estimate_kind": {
+      "enum": ["pjp_service_weekday", "warehouse_demand", "warehouse_processing_time"],
+      "description": "估计种类：PJP 巡访服务星期估计 | 仓储需求估计 | 仓储处理时长估计。"
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1,
+      "description": "ISO-8601 UTC 生成时刻；易失字段，永不入哈希（时钟注入不改变身份）。"
+    },
+    "model_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ir_content_hash", "evidence_id"],
+      "properties": {
+        "ir_content_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "来源 ExperimentIR 的 content_hash（sha256 hex）。"
+        },
+        "evidence_id": {
+          "type": "string",
+          "pattern": "^ev-[0-9a-f]{12,64}$",
+          "description": "来源 run 的 ANF evidence-envelope 证据 id（ev-<12|64 hex>）。"
+        },
+        "decision_id": {
+          "type": ["string", "null"],
+          "pattern": "^dt-[0-9a-f]{12}$",
+          "description": "可选：批准该估计的 DecisionTrace 决策 id。"
+        }
+      }
+    },
+    "units": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["unit_id", "value", "sigma"],
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!\\d+$).+$",
+            "description": "稳定编码字符串（如门店编码/SKU 编码）；禁止裸 int idx（D7）。"
+          },
+          "value": {
+            "type": "number",
+            "description": "点估计值；单位由信封级 value_unit 声明。"
+          },
+          "sigma": {
+            "type": "number",
+            "minimum": 0,
+            "description": "残差尺度（OOF 残差标准差，population ddof=0）；与 value 同单位。注意：这是不确定度 std，与 VisitContract.sigma（0 基星期几 int）和 sp_solve_ip sigma（1 基 ISO 星期几集合）同名不同义，见 SPEC-006 对照表。"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "可选：[0,1] 置信度；缺省表示未声明。"
+          },
+          "quantized": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["rule", "weekdays"],
+            "properties": {
+              "rule": {
+                "type": "string",
+                "minLength": 1,
+                "description": "产生本量化载荷的规则名，必须与信封级 quantization_rule 一致。"
+              },
+              "weekdays": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 7
+                },
+                "description": "1 基 ISO 星期几集合（1=周一..7=周日），升序。注意：VisitContract.sigma 是 0 基（0=周一）——0 出现在这里即为 0/1 基泄漏，适配器拒绝。"
+              },
+              "quantile": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "可选：规则使用的分位数（如 0.8）。"
+              }
+            }
+          }
+        }
+      }
+    },
+    "quantization_rule": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "description": "信封级量化规则声明（如 p80_weekday_coverage：按 weekday 均值 ≥ 该店 P80 分位判入服务星期集合）；null 表示未量化。"
+    },
+    "value_unit": {
+      "type": "string",
+      "minLength": 1,
+      "description": "信封级数值单位语义（对齐 visit-ir 家法）：minutes | km | units_per_day 等；units[].value 与 sigma 共用。"
+    },
+    "content_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "sha256(canonical(envelope - {created_at, content_hash, envelope_id}))，sorted keys、无冗余空白 UTF-8。"
+    }
+  }
+}
