@@ -1,13 +1,37 @@
-"""ExperimentIR contract: schema, canonical hashing, hard gates, executor.
+"""IR contracts: ExperimentIR (SPEC-001) and DecisionTrace (SPEC-004).
 
-Public API lives in ``ir.experiment_ir`` (pure stdlib) and ``ir.runner``
-(executor: stdlib + numpy/pandas/sklearn). Both are re-exported here so
-callers can write ``from ir import load_ir, execute_experiment``.
+Public API lives in ``ir.experiment_ir`` (pure stdlib), ``ir.decision_trace``
+(pure stdlib) and ``ir.runner`` (executor: stdlib + numpy/pandas/sklearn).
+All are re-exported here so callers can write ``from ir import load_ir,
+new_decision, execute_experiment``.
 
-Runner exports are lazy (PEP 562): importing ``ir.experiment_ir`` must stay
-free of numpy/sklearn — the runtime module purity guard in
-tests/test_experiment_ir.py depends on it.
+Runner exports are lazy (PEP 562): importing ``ir.experiment_ir`` or
+``ir.decision_trace`` must stay free of numpy/sklearn — the runtime module
+purity guard in tests/test_experiment_ir.py depends on it.
 """
+from .decision_trace import (
+    ANF_RECORD_ID_PATTERN,
+    ChainHashMismatch,
+    GENESIS_PREV_EVENT_ID,
+    IllegalTransition,
+    LedgerWriteError,
+    MissingEventFieldError,
+    SeparationOfDutiesError,
+    TraceError,
+    TraceSchemaError,
+    UnknownEventError,
+    append_event,
+    canonical_bytes as canonical_decision_bytes,
+    compute_decision_id,
+    compute_event_id,
+    correct,
+    load_decision,
+    new_decision,
+    project_to_anf,
+    record_from_decision_outcome,
+    save_decision,
+    verify_decision,
+)
 from .experiment_ir import (
     SCHEMA_VERSION,
     AuthorizationVerdict,
@@ -48,18 +72,39 @@ _RUNNER_EXPORTS = frozenset(
 )
 
 __all__ = [
+    "ANF_RECORD_ID_PATTERN",
     "SCHEMA_VERSION",
     "AuthorizationVerdict",
+    "ChainHashMismatch",
     "ContentHashMismatch",
+    "GENESIS_PREV_EVENT_ID",
     "GateResult",
     "IRError",
+    "IllegalTransition",
     "IRSchemaError",
+    "LedgerWriteError",
+    "MissingEventFieldError",
+    "SeparationOfDutiesError",
+    "TraceError",
+    "TraceSchemaError",
+    "UnknownEventError",
+    "append_event",
     "authorize_execution",
     "canonical_bytes",
+    "canonical_decision_bytes",
     "compute_content_hash",
+    "compute_decision_id",
+    "compute_event_id",
+    "correct",
+    "load_decision",
     "load_ir",
+    "new_decision",
+    "project_to_anf",
+    "record_from_decision_outcome",
     "run_gates",
+    "save_decision",
     "schema_validate",
+    "verify_decision",
     *_RUNNER_EXPORTS,
 ]
 
