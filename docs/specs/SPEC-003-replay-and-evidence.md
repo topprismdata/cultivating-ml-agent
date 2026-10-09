@@ -171,9 +171,10 @@ EvaluationResult 实体」。必填字段（测试守护）：
 `golden/manifest.canonical.json` 为双跑后的回归金标：
 
 - `canonical`：规范 manifest，其中 `code_version` 以 `@CODE_VERSION@` 占位。
-  **不钉死具体 commit**——钉死会让每次提交都使金标失效；占位符之外的每个
-  字节（指标位型、fold_sizes、data_sha256、oof_sha256、model_params 等）
-  由 `test_golden_regression` 逐字节回归。
+  **不钉死具体 commit**——钉死会让每次提交都使金标失效；占位符之外的非浮点
+  字节（fold_sizes、data_sha256、ir_content_hash、model_params 等）由
+  `test_golden_regression` 逐字节回归；浮点绑定字段（指标位型、oof_sha256）
+  按 §7.1 预注册容差回归（跨环境浮点随 sklearn/BLAS 漂移，同环境仍位级）。
 - `canonical_sha256`：占位态 canonical 的内容哈希（测试同时验证金标自洽）。
 - `metrics`：指标值冗余一份，便于人工审阅。
 - `evidence_stable` / `evidence_content_sha256`：去掉 volatile `timestamp`
@@ -220,6 +221,21 @@ run = execute_experiment(ir, project_root=Path("outputs"),
 | 同种子 | `seed` 进 canonical；折种子 `(seed, fold_idx)` 派生（§4.6） |
 | 证据规范哈希逐字节一致 | `manifest_canonical_hash` / `evidence_content_hash`；双跑全等由 `compare_replays` 逐项布尔裁决（§3.3） |
 | 指标差异为 0 | 位型相等断言（`test_double_run_identical`）；容差仅诊断用（§3.3） |
+
+### 7.1 跨环境两档契约（G2 修订，2026-10-09）
+
+同环境（同机/同依赖版本）维持上表位级契约。**跨环境**（CI runner vs 金标生成机）浮点运算随
+sklearn/BLAS 版本在低位小数漂移，位级断言强于计划原文（§10 G2 为「预设容差内」）。故 golden
+回归（`test_golden_regression`）按两档执行：
+
+1. **位级档**：canonical 中全部非浮点字段（含 `data_sha256`/`ir_content_hash`/`seed`/fold 结构）
+   与金标逐字节相等，跨平台强制；
+2. **容差档**：`metrics`、`metric_value` 按 `FLOAT_TOLERANCE = 1e-6`（相对）预注册容差比较；
+   `oof_sha256`/`evidence_content_sha256` 为浮点绑定哈希，仅作金标参考值，同环境位级身份由
+   双跑测试保障。
+
+> G2 门禁语义不变：同环境复现仍须逐字节；跨环境差异必须落在预注册容差内，容差本身随 SPEC
+> 提交锁定，禁止事后放宽。
 | 端到端重放证明 | 两个提交用例 × 双跑（`tests/test_replay_reproducibility.py`）+ golden 回归（§5） |
 
 ## 8. 依赖纪律
