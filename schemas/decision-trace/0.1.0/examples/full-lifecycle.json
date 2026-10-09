@@ -1,0 +1,200 @@
+{
+  "schema_version": "0.1.0",
+  "decision_id": "dt-fa5c8e01e0d7",
+  "intent_ref": "intent://task/titanic-2026",
+  "state_snapshot_ref": {
+    "ir_content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "data_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "code_version": "e756797"
+  },
+  "alternatives": [
+    {
+      "candidate_id": "cand-lgbm",
+      "family": "lightgbm",
+      "params": {
+        "n_estimators": 300,
+        "learning_rate": 0.05
+      },
+      "metric_value": 0.861
+    },
+    {
+      "candidate_id": "cand-xgb",
+      "family": "xgboost",
+      "params": {
+        "n_estimators": 300
+      },
+      "metric_value": 0.858
+    }
+  ],
+  "constraint_check": [
+    {
+      "gate_id": "G3_METRIC_DEFINITION",
+      "status": "pass"
+    },
+    {
+      "gate_id": "G5_BASELINE_SAME_PROTOCOL",
+      "status": "pass"
+    }
+  ],
+  "baseline_ref": {
+    "baseline_id": "baseline-logreg",
+    "protocol_ref": {
+      "strategy": "stratified",
+      "folds": 5
+    },
+    "score": 0.85
+  },
+  "selected_option": {
+    "candidate_id": "cand-lgbm",
+    "family": "lightgbm",
+    "params": {
+      "n_estimators": 300,
+      "learning_rate": 0.05
+    },
+    "metric_value": 0.861
+  },
+  "rejected_options_and_reasons": [
+    {
+      "candidate_id": "cand-xgb",
+      "reason": "lost_to_selected",
+      "detail": "0.858 < 0.861 同协议 5 折均值"
+    }
+  ],
+  "uncertainty": {
+    "metric_std": 0.004,
+    "margin": 0.011,
+    "note": "5 折标准差"
+  },
+  "decision_actor": "agent-ml",
+  "authorization_ref": "auth://g6/2026-10-09/001",
+  "evidence_refs": [
+    "evidence://replay/run-001"
+  ],
+  "created_at": "2026-10-09T12:10:00+00:00",
+  "status": "evaluated",
+  "events": [
+    {
+      "prev_event_id": "genesis",
+      "event_type": "proposed",
+      "status": "proposed",
+      "actor": "agent-ml",
+      "created_at": "2026-10-09T12:10:00+00:00",
+      "authorization_ref": "auth://g6/2026-10-09/001",
+      "evidence_refs": [
+        "evidence://replay/run-001"
+      ],
+      "payload": {
+        "schema_version": "0.1.0",
+        "decision_id": "dt-fa5c8e01e0d7",
+        "intent_ref": "intent://task/titanic-2026",
+        "state_snapshot_ref": {
+          "ir_content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "data_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "code_version": "e756797"
+        },
+        "alternatives": [
+          {
+            "candidate_id": "cand-lgbm",
+            "family": "lightgbm",
+            "params": {
+              "n_estimators": 300,
+              "learning_rate": 0.05
+            },
+            "metric_value": 0.861
+          },
+          {
+            "candidate_id": "cand-xgb",
+            "family": "xgboost",
+            "params": {
+              "n_estimators": 300
+            },
+            "metric_value": 0.858
+          }
+        ],
+        "constraint_check": [
+          {
+            "gate_id": "G3_METRIC_DEFINITION",
+            "status": "pass"
+          },
+          {
+            "gate_id": "G5_BASELINE_SAME_PROTOCOL",
+            "status": "pass"
+          }
+        ],
+        "baseline_ref": {
+          "baseline_id": "baseline-logreg",
+          "protocol_ref": {
+            "strategy": "stratified",
+            "folds": 5
+          },
+          "score": 0.85
+        },
+        "selected_option": {
+          "candidate_id": "cand-lgbm",
+          "family": "lightgbm",
+          "params": {
+            "n_estimators": 300,
+            "learning_rate": 0.05
+          },
+          "metric_value": 0.861
+        },
+        "rejected_options_and_reasons": [
+          {
+            "candidate_id": "cand-xgb",
+            "reason": "lost_to_selected",
+            "detail": "0.858 < 0.861 同协议 5 折均值"
+          }
+        ],
+        "uncertainty": {
+          "metric_std": 0.004,
+          "margin": 0.011,
+          "note": "5 折标准差"
+        },
+        "decision_actor": "agent-ml",
+        "authorization_ref": "auth://g6/2026-10-09/001",
+        "evidence_refs": [
+          "evidence://replay/run-001"
+        ],
+        "metric_name": "auc",
+        "metric_direction": "maximize"
+      },
+      "event_id": "ev-8b1182a8de5f5677c41068cf15b9fd3d53192e6c9acf059984e840a9a2398781"
+    },
+    {
+      "prev_event_id": "ev-8b1182a8de5f5677c41068cf15b9fd3d53192e6c9acf059984e840a9a2398781",
+      "event_type": "approved",
+      "status": "approved",
+      "actor": "human-reviewer",
+      "created_at": "2026-10-09T12:20:00+00:00",
+      "authorization_ref": "auth://g6/2026-10-09/001-r2",
+      "event_id": "ev-4ff93df5bc2521277dc4b9d62a629b8f19affa4e6e2d21cbeee6e221772a3ac8"
+    },
+    {
+      "prev_event_id": "ev-4ff93df5bc2521277dc4b9d62a629b8f19affa4e6e2d21cbeee6e221772a3ac8",
+      "event_type": "executed",
+      "status": "executed",
+      "actor": "executor-01",
+      "created_at": "2026-10-09T12:30:00+00:00",
+      "execution_ref": "manifest://run-2026-10-09-001",
+      "event_id": "ev-6e24524439f87b7342b143b4d41ff4e74a4124ee8178524c35df7899e2e4c663"
+    },
+    {
+      "prev_event_id": "ev-6e24524439f87b7342b143b4d41ff4e74a4124ee8178524c35df7899e2e4c663",
+      "event_type": "evaluated",
+      "status": "evaluated",
+      "actor": "agent-ml",
+      "created_at": "2026-10-09T12:40:00+00:00",
+      "evidence_refs": [
+        "evidence://replay/run-2026-10-09-001/envelope"
+      ],
+      "outcome_refs": [
+        "outcome://replay/run-2026-10-09-001"
+      ],
+      "event_id": "ev-dc477d2c8ed096ff3bde3728aa1085607c96e2247e247ff94bc66a5f508a3abb"
+    }
+  ],
+  "execution_ref": "manifest://run-2026-10-09-001",
+  "outcome_refs": [
+    "outcome://replay/run-2026-10-09-001"
+  ]
+}

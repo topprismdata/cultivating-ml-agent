@@ -1,0 +1,433 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cultivating-ml-agent:decision-trace:0.1.0",
+  "title": "DecisionTrace",
+  "description": "Decision ledger (SPEC-004, ADR-002). The document is an append-only event chain: the first event is proposed with prev_event_id=genesis, every later event links forward and its event_id covers the full canonical event content (created_at is deliberately excluded so injected clocks cannot change identity). Corrections append correction events linked via correction_of; history is never rewritten. Shape and identifiers are enforced here; transition legality and duty separation (four-eyes, mandatory execution_ref/evidence_refs/reason) are enforced by ir.decision_trace, so a schema-legal document may still fail append_event.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "decision_id",
+    "intent_ref",
+    "state_snapshot_ref",
+    "alternatives",
+    "constraint_check",
+    "baseline_ref",
+    "selected_option",
+    "rejected_options_and_reasons",
+    "evidence_refs",
+    "decision_actor",
+    "authorization_ref",
+    "uncertainty",
+    "created_at",
+    "status",
+    "events"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "description": "DecisionTrace contract version; a new semantic version requires a new schema directory."
+    },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^dt-[0-9a-f]{12}$",
+      "description": "sha256-derived (first 12 hex) over canonical {intent_ref, selected_option, alternatives, baseline_ref}; deterministic and clock-independent."
+    },
+    "intent_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Reference to the intent this decision serves."
+    },
+    "state_snapshot_ref": {
+      "$ref": "#/$defs/stateSnapshotRef"
+    },
+    "alternatives": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/candidate"
+      },
+      "description": "Candidate options considered at proposal time."
+    },
+    "constraint_check": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/gateCheck"
+      },
+      "description": "Hard-gate outcomes (G1-G6) evaluated for this decision."
+    },
+    "baseline_ref": {
+      "$ref": "#/$defs/baselineRef"
+    },
+    "selected_option": {
+      "$ref": "#/$defs/candidate"
+    },
+    "rejected_options_and_reasons": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rejectedOption"
+      }
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Pointers to evidence artifacts backing the proposal (SPEC-003 evidence envelopes)."
+    },
+    "decision_actor": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Actor who proposed the decision; approvers must differ (four-eyes)."
+    },
+    "authorization_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Pointer to the authorization record (ExperimentIR G6 authorization)."
+    },
+    "execution_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Pointer to the run manifest / execution trace; promoted from the executed event."
+    },
+    "outcome_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Pointers to evaluation outcomes; promoted from the evaluated event."
+    },
+    "uncertainty": {
+      "$ref": "#/$defs/uncertainty"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 creation time of the genesis event; never enters any hash."
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "approved",
+        "executed",
+        "evaluated",
+        "rejected"
+      ],
+      "description": "Current lifecycle status; always equals the last event's status."
+    },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/traceEvent"
+      },
+      "description": "Append-only event chain; length >= 1."
+    }
+  },
+  "$defs": {
+    "stateSnapshotRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ir_content_hash",
+        "data_sha256",
+        "code_version"
+      ],
+      "properties": {
+        "ir_content_hash": {
+          "type": "string",
+          "minLength": 1,
+          "description": "ExperimentIR content_hash at decision time."
+        },
+        "data_sha256": {
+          "type": "string",
+          "minLength": 1,
+          "description": "sha256 of the dataset snapshot."
+        },
+        "code_version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Code revision the decision was taken under."
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id",
+        "family",
+        "params",
+        "metric_value"
+      ],
+      "properties": {
+        "candidate_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "family": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Model family identifier."
+        },
+        "params": {
+          "type": "object",
+          "description": "JSON-serializable hyperparameter mapping."
+        },
+        "metric_value": {
+          "type": "number"
+        }
+      }
+    },
+    "gateCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gate_id",
+        "status"
+      ],
+      "properties": {
+        "gate_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Hard-gate identifier, e.g. G3_METRIC_DEFINITION."
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Gate outcome, e.g. pass/blocked."
+        }
+      }
+    },
+    "baselineRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_id",
+        "protocol_ref",
+        "score"
+      ],
+      "properties": {
+        "baseline_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "protocol_ref": {
+          "type": "object",
+          "description": "Validation protocol reference; must match the candidate protocol (G5)."
+        },
+        "score": {
+          "type": "number"
+        }
+      }
+    },
+    "rejectedOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id",
+        "reason",
+        "detail"
+      ],
+      "properties": {
+        "candidate_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "enum": [
+            "worse_than_baseline",
+            "below_min_improvement",
+            "lost_to_selected",
+            "constraint_gate_failed"
+          ]
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric_std",
+        "margin",
+        "note"
+      ],
+      "properties": {
+        "metric_std": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "margin": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "traceEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "prev_event_id",
+        "event_type",
+        "status",
+        "actor",
+        "created_at"
+      ],
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "pattern": "^ev-[0-9a-f]{64}$",
+          "description": "sha256 over canonical event content including prev_event_id; excludes event_id itself and created_at."
+        },
+        "prev_event_id": {
+          "type": "string",
+          "pattern": "^(genesis|ev-[0-9a-f]{64})$",
+          "description": "genesis for the first event, otherwise the preceding event_id."
+        },
+        "event_type": {
+          "enum": [
+            "proposed",
+            "approved",
+            "executed",
+            "evaluated",
+            "rejected",
+            "correction"
+          ]
+        },
+        "status": {
+          "enum": [
+            "proposed",
+            "approved",
+            "executed",
+            "evaluated",
+            "rejected"
+          ],
+          "description": "Decision status after this event; correction events repeat the current status."
+        },
+        "actor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "authorization_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "execution_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Mandatory for executed events."
+        },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Mandatory, non-empty, for evaluated events."
+        },
+        "outcome_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Pointers to evaluation outcomes; promoted to document level by the evaluated event."
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Mandatory for rejected and correction events."
+        },
+        "correction_of": {
+          "type": "string",
+          "pattern": "^(genesis|ev-[0-9a-f]{64})$",
+          "description": "Mandatory for correction events: the corrected event_id."
+        },
+        "payload": {
+          "type": "object",
+          "description": "Event extension content: the proposed event carries the full document snapshot; correction events carry the amended content."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "enum": [
+                  "rejected",
+                  "correction"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "reason"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "correction"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "correction_of"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "executed"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "execution_ref"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "evaluated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "evidence_refs"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
