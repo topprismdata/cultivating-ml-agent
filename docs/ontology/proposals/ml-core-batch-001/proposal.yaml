@@ -1,0 +1,66 @@
+# ==============================================================================
+# proposal.yaml
+# MS-PROP 提案批次：ML 共享核心净新增概念（ml-core-batch-001）
+# 仓库内决议依据：docs/adr/ADR-001-cross-repo-responsibilities.md（映射表 + 处置规则）
+# 上游先例：prism-ontology proposals/mousheng/（MS-PROP-021 / MS-PROP-022）
+# ==============================================================================
+
+batch_id: "ml-core-batch-001"
+title: "ML 共享核心净新增概念批次（WorldStateRef / Task / Goal / Candidate / Execution / Claim / Outcome / Capability）"
+initiator: "cultivating-ml-agent 维护组（下游需求方；角色同 mousheng 先例，按 GOVERNANCE.md 提案流程进入）"
+date: "2026-10-09"
+status: "draft"            # 未提交上游：提交时机待 prism-ontology 维护方裁定
+lifecycle_phase: "internal_draft"
+
+upstream:
+  target_repository: "prism-ontology"
+  target_dir: "proposals/"                 # 上游提案目录（先例：proposals/mousheng/）
+  proposal_numbering: "MS-PROP 编号由上游维护方单调递增分配（当前编号空间已分配至 MS-PROP-022）；本批次在上游分配前不占用编号，概念文件内使用 ML-CORE-NNN 临时编号"
+  review_flow: "GOVERNANCE.md §2 提案治理六态状态机：accepted / aligned_to_existing / profile_local / mapping_only / rejected / deferred"
+  assessment_method: "五问法裁定（GOVERNANCE.md §2）：对象是否客观稳定？跨供应商/跨企业是否成立？跨项目是否需要统一推理？定义是否明确？"
+  release_flow: "GOVERNANCE.md §3 两段式发布：干净工作树源码提交 -> 基于 commit 哈希构建 dist 并签署 manifest -> Annotated Git Tag"
+
+# ADR-001 处置规则：8 项净新增概念以一个提案批次整体提交（一次提案、逐项审查、
+# 统一版本锁定），不逐个临时上推；批次通过前这些概念仅存在于 ML 局部命名空间
+# （prism://ontology/ml/，status: local / pending_proposal）。
+disposition_rule: "ADR-001 §决策.3：一次提案、逐项审查、统一版本锁定；通过前禁止跨 Profile 复用"
+
+# 批次范围：仅含 ADR-001 映射表判定为「净新增」的 8 项共享核心概念。
+# 计划 v0.1 §3 另 6 项（Observation / Estimate / Evidence / Constraint / Decision / Plan）
+# 均可映射到 core.ttl 已发布类，直接引用、不在本批次范围。
+# ML 局部扩展概念（MLTask、DatasetSnapshot、FeatureSet、ValidationProtocol、
+# MetricDefinition、Hypothesis、ExperimentPlan、ExperimentRun、EvaluationResult、
+# ModelArtifact、TransferEvidence）属 ML Profile 命名空间，默认不申请进入 core.ttl。
+scope:
+  net_new_concepts:
+    - "WorldStateRef"
+    - "Task"
+    - "Goal"
+    - "Candidate"
+    - "Execution"
+    - "Claim"
+    - "Outcome"
+    - "Capability"
+  out_of_scope:
+    - "可映射 6 项（直接引用 prism-core 已发布类：Observation、Estimate->DerivedEstimate、Evidence、Constraint、Decision、Plan）"
+    - "ML 局部扩展概念（留 prism://ontology/ml/ 局部命名空间）"
+
+# 依赖的已发布类（prism-ontology core.ttl @9d93a99；Compatibility BOM 锁定见
+# docs/ontology/compatibility.bom.yaml，id: prism-ontology, ref: 9d93a99）
+dependencies_published_classes:
+  - uri: "prism:core/InformationObject"
+    used_as: "WorldStateRef / Goal / Candidate / Claim / Capability 的父类候选"
+  - uri: "prism:core/Activity"
+    used_as: "Task / Execution 的父类候选"
+  - uri: "prism:core/Observation"
+    used_as: "Outcome 的父类候选"
+
+related_decisions:
+  - "docs/adr/ADR-001-cross-repo-responsibilities.md — 提案批次路径与 8 项净新增判定"
+  - "docs/adr/ADR-002-decision-trace-boundary.md — EvaluationResult 显式不设实体；Outcome 与评估结果信封的边界"
+  - "docs/ontology/ml-profile/0.1.0/mappings.yaml — core_proposals 登记表（本批次的仓库内底稿）"
+  - "agent-nurture-framework@33f444b — Capability 与 capability-record 的语义对齐来源"
+
+governance_assessment:
+  five_questions_verdict: "逐项评估见 concept-proposals.yaml；批次级结论：8 项均为实验/决策/能力治理的最小公共语义，缺任一项则 ExperimentIR 与 DecisionTrace 的跨域陈述只能停留在 ML 局部命名空间"
+  recommended_decision: "一次提案、逐项审查、统一版本锁定（ADR-001 处置规则）；评审前维持 ML 局部命名空间 status: local / pending_proposal，不发生任何行为变化"

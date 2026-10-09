@@ -1,0 +1,123 @@
+# ==============================================================================
+# competency_questions.yaml
+# ml-core-batch-001 - 概念能力问题集 (Competency Questions)
+#
+# 评估原则（沿用 mousheng 先例口径，按概念提案场景调整）：
+# 1. semantic_expressibility: 该问题能否被含本批次概念的本体结构化表达 (pass / fail)
+# 2. data_answerability: 当前 cultivating-ml-agent 工件（ExperimentIR / DecisionTrace /
+#    ANF 记录 / 跨域报告）是否有足够数据支持完整计算回答 (full / partial / none)
+# 3. 若 data_answerability 为 partial 或 none，必须显式声明 blocking_reason 和
+#    handling_policy，绝不伪造数据结论
+#
+# 每项净新增概念至少 1 条可回答 CQ（提案评审的最低表达力门槛）。
+# ==============================================================================
+
+version: "1.0.0"
+batch: "ml-core-batch-001"
+governance_status: "draft"
+
+competency_questions:
+
+  # ---------------------------------------------------------------------------
+  # WorldStateRef: 只读状态引用
+  # ---------------------------------------------------------------------------
+  - id: "CQ-001"
+    proposed_concept: "prism:core/WorldStateRef"
+    scenario: "跨实验初始状态同一性判定"
+    natural_language: "这次实验与上次实验面对的是不是同一个冻结的初始状态（同一数据快照与环境前置事实）？"
+    target_entities: ["prism:core/WorldStateRef", "prism:core/Execution"]
+    semantic_expressibility: "pass"
+    data_answerability: "full"
+    blocking_reason: null
+    handling_policy: "compare_content_hash_across_runs（双跑同哈希把守：tests/test_replay_reproducibility.py::test_double_run_identical；篡改即拒载：ContentHashMismatch）"
+
+  # ---------------------------------------------------------------------------
+  # Task: 声明式任务指派
+  # ---------------------------------------------------------------------------
+  - id: "CQ-002"
+    proposed_concept: "prism:core/Task"
+    scenario: "任务边界清单"
+    natural_language: "组织内当前登记了哪些机器学习任务，各自圈定了什么数据、验证协议与度量选型边界（且不携带执行状态）？"
+    target_entities: ["prism:core/Task", "prism:ml/MLTask"]
+    semantic_expressibility: "pass"
+    data_answerability: "full"
+    blocking_reason: null
+    handling_policy: "enumerate_task_boundaries_from_experiment_ir（ExperimentIR 任务段；ML 特化见 prism:ml/MLTask）"
+
+  # ---------------------------------------------------------------------------
+  # Goal: 可判定达成条件
+  # ---------------------------------------------------------------------------
+  - id: "CQ-003"
+    proposed_concept: "prism:core/Goal"
+    scenario: "达成条件判定"
+    natural_language: "某实验声明的达成条件是什么？当前证据支持『通过』还是『证伪』？"
+    target_entities: ["prism:core/Goal", "prism:core/Observation"]
+    semantic_expressibility: "pass"
+    data_answerability: "full"
+    blocking_reason: null
+    handling_policy: "evaluate_goal_against_evidence（硬门判定：framework/src/pipeline/validate.py；只能证伪不能证真）"
+
+  # ---------------------------------------------------------------------------
+  # Candidate: 受控比较的选项登记
+  # ---------------------------------------------------------------------------
+  - id: "CQ-004"
+    proposed_concept: "prism:core/Candidate"
+    scenario: "候选入赛合规性"
+    natural_language: "某次受控比较中进入了哪些候选？每个候选与基线是否同协议、预算是否越界？"
+    target_entities: ["prism:core/Candidate", "prism:core/WorldStateRef"]
+    semantic_expressibility: "pass"
+    data_answerability: "full"
+    blocking_reason: null
+    handling_policy: "audit_candidates_against_baseline_protocol（ExperimentIR 六硬门之 G5_BASELINE_SAME_PROTOCOL / G4_BUDGET_BOUNDS；tests/test_decide.py::test_family_mismatch_raises）"
+
+  # ---------------------------------------------------------------------------
+  # Execution: 纯函数式执行簿记
+  # ---------------------------------------------------------------------------
+  - id: "CQ-005"
+    proposed_concept: "prism:core/Execution"
+    scenario: "执行可复现性审计"
+    natural_language: "某计划被确定性执行了几次？每次的输入指纹、产出工件与记录是什么？"
+    target_entities: ["prism:core/Execution", "prism:ml/ExperimentRun", "prism:ml/ModelArtifact"]
+    semantic_expressibility: "pass"
+    data_answerability: "full"
+    blocking_reason: null
+    handling_policy: "replay_and_diff_execution_records（双跑同哈希 + golden 回归：tests/test_replay_reproducibility.py）"
+
+  # ---------------------------------------------------------------------------
+  # Claim: 可证伪主张
+  # ---------------------------------------------------------------------------
+  - id: "CQ-006"
+    proposed_concept: "prism:core/Claim"
+    scenario: "被证伪主张清单"
+    natural_language: "哪些『某改动会改善某度量』的主张被证据证伪了？各自引用了什么独立证据？"
+    target_entities: ["prism:core/Claim", "prism:core/Observation", "prism:ml/Hypothesis"]
+    semantic_expressibility: "pass"
+    data_answerability: "full"
+    blocking_reason: null
+    handling_policy: "list_falsified_claims_from_decision_trace（拒绝与负例链：tests/test_decision_trace.py::test_alternate_rejection_path_approved_then_rejected；worse_than_baseline 全拒绝：tests/test_decide.py::test_worse_than_baseline_rejects_everything）"
+
+  # ---------------------------------------------------------------------------
+  # Outcome: 执行后事实记录
+  # ---------------------------------------------------------------------------
+  - id: "CQ-007"
+    proposed_concept: "prism:core/Outcome"
+    scenario: "跨域往返事实回查"
+    natural_language: "上次跨域求解往返的事实结果是什么（哪些字段有值、哪些为空）——只报事实，不报评价？"
+    target_entities: ["prism:core/Outcome", "prism:core/Execution"]
+    semantic_expressibility: "pass"
+    data_answerability: "full"
+    blocking_reason: null
+    handling_policy: "read_four_column_report_facts（四列分列、空格渲染为 NA 而非 0：tests/test_cross_domain_report.py::test_report_has_exactly_four_columns / test_null_cells_render_as_na_not_zero）"
+
+  # ---------------------------------------------------------------------------
+  # Capability: 可复用能力登记
+  # ---------------------------------------------------------------------------
+  - id: "CQ-008"
+    proposed_concept: "prism:core/Capability"
+    scenario: "能力复用资格查询"
+    natural_language: "某能力候选在哪些任务家族上验证过、有无负例与争议、在声明的 scope 内可否复用？"
+    target_entities: ["prism:core/Capability", "prism:core/Claim"]
+    semantic_expressibility: "pass"
+    data_answerability: "partial"
+    blocking_reason: "晋级门禁（预注册阈值：min_task_success>=3、min_task_families>=2、require_negative_case、min_negative_transfer>=1、max_evidence_age_days=180、require_no_dispute、activation_authority=A2）由 A 线 upgrade/p5-governance 落地；该分支合入前无机器可查的统一验证记录。"
+    handling_policy: "gate_merge_then_full：合入后由 tests/test_governance_*（A 线交付）支持完整回答；此前人工查 ANF capability-record（agent-nurture-framework@33f444b）逐条核对，激活永远是授权方人为动作，不做自动晋升。"

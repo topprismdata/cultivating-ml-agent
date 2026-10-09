@@ -1,0 +1,139 @@
+# ==============================================================================
+# concept-proposals.yaml
+# ml-core-batch-001：8 项共享核心净新增概念的逐项提案
+# 概念清单与判定出处：docs/adr/ADR-001 §决策.3 映射表（8 项净新增，一字不差）
+# 中文名称沿用 docs/ontology/ml-profile/0.1.0/mappings.yaml core_proposals 登记表
+# 临时编号 ML-CORE-NNN：上游 MS-PROP 编号由 prism-ontology 维护方分配后替换
+# ==============================================================================
+
+version: "1.0.0"
+batch: "ml-core-batch-001"
+submission_status: "draft"   # 未提交上游；提交时机待维护方裁定
+
+proposals:
+
+  # ---------------------------------------------------------------------------
+  - id: "ML-CORE-001"
+    proposed_uri: "prism:core/WorldStateRef"
+    name: "世界状态引用"
+    category: "Reference"
+    definition: "对决策/实验所见初始世界状态的只读引用：以指纹（内容哈希）指称数据快照、环境与前置事实的冻结视图，本身不携带也不允许任何对世界状态的写入效应。"
+    suggested_parent: "prism:core/InformationObject"
+    parent_alternatives_rejected:
+      - parent: "prism:core/Entity"
+        reason: "实体化会引入可写语义；WorldStateRef 是关于状态的陈述（指纹 + 冻结点），不是状态本身，写入即越界。"
+    ml_local_diff: "ML 局部命名空间无同名类：ExperimentIR 的初始状态以 content_hash 字段承载（framework/src/ir/experiment_ir.py），尚非本体类。core 版本剥离 ML 特有字段，泛化为跨域可引用的只读状态指称；晋升后 ExperimentIR 文档的 world_state 段改为引用本类，局部字段语义不变。"
+    arena_boundary: "arena 内只作为受控比较的公共起点（所有候选面对同一状态引用），不参与胜负判定本身；任何执行中改写世界状态的行为越界（纯函数式执行，零求解器依赖，与 VisitIR 家法一致）。"
+    rationale: "以只读引用刻画实验所见的初始状态；显式杜绝任何对世界状态的直接写入效应。"
+
+  # ---------------------------------------------------------------------------
+  - id: "ML-CORE-002"
+    proposed_uri: "prism:core/Task"
+    name: "任务"
+    category: "Intent"
+    definition: "跨域通用的声明式任务指派对象：只圈定问题边界（目标、约束、数据与度量选型），不携带任何执行状态；执行状态唯一归属 Execution。"
+    suggested_parent: "prism:core/Activity"
+    parent_alternatives_rejected:
+      - parent: "prism:core/InformationObject"
+        reason: "把意图物化成文档。ML Profile 对 MLTask 的裁定（mappings.yaml）明确：任务是有时间边界、有意图产出的活动，落 Activity 而非 InformationObject。"
+    ml_local_diff: "prism:ml/MLTask 是本类的 ML 特化（现直接映射 prism:core/Activity）。core Task 接受后，mappings.yaml 以新版本（supersedes 语义）把映射改为 MLTask -> Task -> Activity 传递链——版本化变更，非静默改写。"
+    arena_boundary: "Task 声明式、不触发执行：outlet-insight 样板将 execution/Task 列为禁用执行概念，本提案继承该边界；指派与执行分离（指派归 Task，簿记归 Execution）。"
+    rationale: "跨域通用的任务指派对象；outlet-insight 场景将 execution/Task 列为禁用执行概念，ML 场景以声明式 Task 承接意图而不触发执行语义。"
+
+  # ---------------------------------------------------------------------------
+  - id: "ML-CORE-003"
+    proposed_uri: "prism:core/Goal"
+    name: "目标"
+    category: "Criterion"
+    definition: "可判定的达成条件声明：给定证据后能够机械判定『通过 / 证伪』，供快筛分层与硬门禁判断使用；只能证伪，不能证真。"
+    suggested_parent: "prism:core/InformationObject"
+    parent_alternatives_rejected:
+      - parent: "prism:core/Constraint"
+        reason: "Goal 是达成条件，不是硬性准入约束；Constraint 门禁语义（prism-core 已发布类）保持独立，二者可关联但不可混同。"
+    ml_local_diff: "ML 局部命名空间无 Goal 类：达成条件以 ExperimentIR 硬门与 framework/src/pipeline/validate.py 门禁阈值承载。core 化后跨域复用同一『可判定、只能证伪』语义（VisitIR 家法的快筛分层）。"
+    arena_boundary: "Goal 判定必须由外部证据驱动；arena 内 Goal 只做分层过滤，不得替代 Evidence 对 Claim 的评判，也不得作为自动晋升依据。"
+    rationale: "可判定的达成条件声明，供快筛分层判断通过/证伪。"
+
+  # ---------------------------------------------------------------------------
+  - id: "ML-CORE-004"
+    proposed_uri: "prism:core/Candidate"
+    name: "候选"
+    category: "Option"
+    definition: "进入受控比较的可选项登记（模型 / 特征 / 参数 / 解）：候选是被比较对象的声明性规格，与 Claim、Outcome 分离，避免自证。"
+    suggested_parent: "prism:core/InformationObject"
+    parent_alternatives_rejected:
+      - parent: "prism:core/Entity"
+        reason: "候选可以是任何事物的指称；实体化会把『比较对象的登记』与『被比较物本身』混淆。"
+    ml_local_diff: "ML 局部命名空间无独立 Candidate 类：候选集以 ExperimentIR candidates 段承载（含 baseline_same_protocol、budget_bounds 等硬门字段，tests/test_decide.py 校验 family 一致与缺失拒绝）。core Candidate 只保留『进入受控比较』的最小语义，硬门字段留 ML 特化层。"
+    arena_boundary: "候选只能进 arena 受控比较；比较结果落 Outcome、评判走 Claim + Evidence。禁止候选自证：与基线不同协议的候选不得入赛（decide.py 的 baseline_same_protocol 是本边界的 ML 实例）。"
+    rationale: "进入比较的可选项（模型 / 特征 / 参数候选）；与 Claim、Outcome 分离以避免自证。"
+
+  # ---------------------------------------------------------------------------
+  - id: "ML-CORE-005"
+    proposed_uri: "prism:core/Execution"
+    name: "执行"
+    category: "Activity"
+    definition: "一次受控执行的纯函数式簿记：消耗声明（Plan/Task 指称）、产出工件与记录；有起止、有输入输出指纹，零求解器依赖。"
+    suggested_parent: "prism:core/Activity"
+    parent_alternatives_rejected:
+      - parent: "prism:core/Event"
+        reason: "Event 是时点事实；Execution 是有输入产出的活动实例，Activity 语义完备。"
+    ml_local_diff: "prism:ml/ExperimentRun 是本类的 ML 特化（确定性复演、OOF 帧、模型工件；双跑同哈希由 tests/test_replay_reproducibility.py 把守）。core Execution 是跨域通用簿记：PJP/仓储适配器的求解往返（SPEC-006 JSON 信封）同样以执行簿记描述。"
+    arena_boundary: "执行不得做计划外决策（ExperimentRun 定义原文）；MLflow 是执行事实来源之一而非本体注册表，MLflow 记录不直接映射为本类（ADR-001 禁区 3）。"
+    rationale: "纯函数式执行簿记；零求解器依赖，与 VisitIR 家法一致。"
+
+  # ---------------------------------------------------------------------------
+  - id: "ML-CORE-006"
+    proposed_uri: "prism:core/Claim"
+    name: "主张"
+    category: "Statement"
+    definition: "可证伪主张的通用载体：陈述某关系或效应成立，只能被独立证据支持或证伪，不能证真。"
+    suggested_parent: "prism:core/InformationObject"
+    parent_alternatives_rejected:
+      - parent: "prism:core/Decision"
+        reason: "Decision 是授权选择记录（DecisionTrace 四眼链已占用该已发布类的语义）；Claim 是待评陈述，二者在决策链上位置不同。"
+    ml_local_diff: "prism:ml/Hypothesis 现为 proposed_local（父类 Claim 尚未发布，见 ml-profile/0.1.0/concepts.yaml 特殊处置 1）。Claim 发布后 Hypothesis 的 governance_status 随父类翻转，无需修改 Hypothesis 定义。"
+    arena_boundary: "主张永不自证：评判必须引用独立 Evidence；只能证伪不能证真（VisitIR 家法）；进入 topprismwiki 前必须经核验（ADR-001 禁区 6：不直接发布实验日志）。"
+    rationale: "可证伪主张的通用载体；Hypothesis 的目标父类。"
+
+  # ---------------------------------------------------------------------------
+  - id: "ML-CORE-007"
+    proposed_uri: "prism:core/Outcome"
+    name: "结果"
+    category: "Observation"
+    definition: "执行后的事实记录：受控比较产生的客观观测结果（含负例），只记录发生了什么，不做好坏评价；主张由独立证据评判。"
+    suggested_parent: "prism:core/Observation"
+    parent_alternatives_rejected:
+      - parent: "prism:core/Event"
+        reason: "结果是观测记录而非时点事实，Observation（客观观测）语义精确匹配。"
+      - parent: "新建『评估结果』类"
+        reason: "显式不设（ADR-002 决议）：ML 的评估结果一律落 ANF evidence-envelope（agent-nurture-framework@33f444b），完整决策保真唯一归属 DecisionTrace；ML 局部以 ProhibitEvaluationResultShape 禁止实例化。Outcome 是跨域世界事实记录，与该决议互补而非冲突。"
+    ml_local_diff: "ML 局部命名空间无 Outcome 实体（评估结果显式不设实体，ADR-002）。core Outcome 承载跨域消费的事实陈述；ML 的度量数字仍走 evidence-envelope，两者数据面分工在 ADR-002 已钉死。"
+    arena_boundary: "Outcome 只记录事实：胜出判定属于 Decision（DecisionTrace 状态机 + 四眼），负例结果同样是合法 Outcome——晋级门禁的 require_negative_case 语义（预注册阈值）依赖『负例是合法记录』这一边界。"
+    rationale: "执行后的事实记录；与 Claim 分离，主张由独立证据评判。"
+
+  # ---------------------------------------------------------------------------
+  - id: "ML-CORE-008"
+    proposed_uri: "prism:core/Capability"
+    name: "能力"
+    category: "Registration"
+    definition: "可复用能力的受管登记：描述某主体在特定 scope 下可复用的能力及其证据与生命周期；登记的流转与激活永远由授权方（policy authority）的人为动作决定，接口只产出 draft 与建议。"
+    suggested_parent: "prism:core/InformationObject"
+    parent_alternatives_rejected:
+      - parent: "prism:core/Role"
+        reason: "Role 是业务角色的承担关系（售点情境下的角色语义）；能力是可复用资产的登记，二者领域不同。"
+    ml_local_diff: "ML 局部命名空间无 Capability 类。记录面权威是 agent-nurture-framework@33f444b 的 capability-record schema（lifecycle_status: draft/active/refining/stable/disputed/deprecated，无候选/晋升态；risk_level、scope、provenance_chain_id）；本类是概念面，定义显式对齐该 schema 语义，不另造互斥定义。"
+    arena_boundary: "能力登记不自动晋升：一次成功不触发任何状态翻转（ANF policy-record 明言 authority 约束 Not promotion）；激活是 A2 权限的人为动作。arena 内能力候选的验证结论只作为门禁证据输入（skill-tester 禁区 5：测试结果不直接改写本体）。"
+    rationale: "可复用能力登记；与 agent-nurture-framework@33f444b 的 capability-record 语义对齐。"
+
+# ==============================================================================
+# 批次级治理备注
+# ==============================================================================
+# 1. 五问法：8 项概念对象客观稳定（实验/决策/能力治理的公共语义）、跨供应商成立
+#    （不以任何平台专有 ID 为前提）、跨项目需要统一推理（ExperimentIR 与跨域适配
+#    共用）、定义明确（上方 definition 逐项给出可判定边界）。
+# 2. 防概念膨胀：本批次不含任何临时实验字段、批次流水号或平台专有 ID；ML 局部
+#    扩展概念默认不申请进入 core.ttl（ADR-001）。
+# 3. 版本锁定：批次整体一次提案、逐项审查、统一版本锁定；通过后
+#    docs/ontology/compatibility.bom.yaml 以新 BOM 版本更新 prism-ontology 锁定引用。
+# ==============================================================================
