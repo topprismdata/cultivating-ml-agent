@@ -1,0 +1,54 @@
+{
+  "schema_version": "0.1.0",
+  "case": "store-sales-style",
+  "note": "双跑回归金标。code_version 以 @CODE_VERSION@ 占位：若钉死具体 commit，每次提交都会使金标失效；占位符之外的每个字节（含指标位型、fold_sizes、data_sha256、oof_sha256）均由 tests/test_replay_reproducibility.py 逐字节回归。canonical_sha256 是占位态 canonical 的内容哈希；测试会用运行时的真实 code_version 回填后再对运行结果断言。evidence_stable 为去掉易变 timestamp 字段后的证据信封；evidence_content_sha256 为 evidence_content_hash 输出。",
+  "canonical": {
+    "schema_version": "0.1.0",
+    "ir_content_hash": "a70adc745cb2cf33be3c775b9d94f7ab916623262a3066aafc73c2056129c22a",
+    "code_version": "@CODE_VERSION@",
+    "data_sha256": "b7495bff49469667fa181061c07c79698d8c0ad84c03306d1299fb973d0e08e8",
+    "seed": 42,
+    "strategy": "time_based",
+    "n_folds": 1,
+    "fold_sizes": [
+      {
+        "train": 453,
+        "val": 87
+      }
+    ],
+    "metrics": {
+      "rmse": 2.1526364792129384
+    },
+    "oof_sha256": "3799127e099b834800f7e583fe9dead31c63cf544e85121eed33731af5e23971",
+    "model_family": "ridge",
+    "model_params": {
+      "alpha": 1.0
+    }
+  },
+  "canonical_sha256": "afca785cf8280071a7d21c5f0dcecc8fb0eb4d848c8aff32eb825b81577a478a",
+  "metrics": {
+    "rmse": 2.1526364792129384
+  },
+  "evidence_stable": {
+    "evidence_id": "ev-a70adc745cb2",
+    "capability_id": "ml-experiment",
+    "skill_id": "experiment-run",
+    "evidence_type": "task_success",
+    "source_system": "cultivating",
+    "measurement_protocol": "{\"n_folds\":1,\"strategy\":\"time_based\",\"time_col\":\"date\",\"val_size_weeks\":4}",
+    "protocol_version": "0.1.0",
+    "metric_name": "rmse",
+    "metric_value": 2.1526364792129384,
+    "metric_version": "framework-utils-metrics/1.0.0",
+    "executor": "framework/src/ir/runner.py",
+    "provenance_chain_id": "pch-a70adc745cb2",
+    "task_id": "replay-store-sales-001",
+    "artifact_refs": [
+      {
+        "path": "outputs/oof/replay-store-sales-001.csv",
+        "sha256": "3799127e099b834800f7e583fe9dead31c63cf544e85121eed33731af5e23971"
+      }
+    ]
+  },
+  "evidence_content_sha256": "8ab034976221a627860023484b0e05bc342f3d6ac5eff45cebb79b702568ff93"
+}
