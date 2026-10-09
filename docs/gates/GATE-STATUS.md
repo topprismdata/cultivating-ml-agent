@@ -84,11 +84,11 @@
 
 ---
 
-## G4 — 晋级门禁（负例 + 四眼 + skill gate） — `partial`（本轮 A 线落地）
+## G4 — 晋级门禁（负例 + 四眼 + skill gate） — `enforced`
 
 **定义**：能力候选晋级必须满足预注册阈值（min_task_success>=3、min_task_families>=2、require_negative_case=true、min_negative_transfer>=1、max_evidence_age_days=180、require_no_dispute=true、activation_authority="A2"）；激活是授权方人为动作，接口只产出 draft 与建议，一次成功不自动晋升。
 
-**证据（A 线交付物，分支 `upgrade/p5-governance`，合入本仓库后路径生效）**：
+**证据（已合入 main，PR #38）**：
 
 - 策略 schema：`schemas/governance/promotion-policy.schema.json`（阈值预注册载体）
 - 默认策略：`framework/src/governance/policies/default-policy.json`（提交即锁定；修改需新版本 policy，supersedes 语义）
