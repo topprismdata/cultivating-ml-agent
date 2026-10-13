@@ -13,7 +13,7 @@ P5 治理线交付一件事：**接口只产出 draft 与建议，激活永远�
 
 铁律（计划 §12，G4）：
 
-1. **禁止一次成功自动晋升**：`evaluate_promotion` 全部阈值通过后产出的是 ANF capability-record 且 `lifecycle_status` 恒为 `"draft"`（代码字面量，非参数），决策状态为 `approved_for_draft`——批准的是"可以起草"，不是"已激活"。
+1. **禁止一次成功自动晋升**：`evaluate_promotion` 全部阈值通过后产出的是 ANF capability-record 且 `lifecycle_status` 恒为 `"candidate"`（ANF ADR-002 规范生命周期初始态；代码字面量，非参数），决策状态为 `approved_for_draft`——批准的是"可以起草"，不是"已激活"。
 2. **阈值必须预注册**（计划 §10）：所有阈值来自哈希钉死的策略文件，代码里不存在可漂移的默认口径；策略一经提交即锁定，改阈值 = 新版本 policy + `supersedes` 语义，禁止事后为通过门禁修改口径。
 3. **激活无代码路径**：`activate_capability` 函数存在但恒抛 `GovernanceError("激活需 A2+ 人工授权，接口不自动晋升")`——给它一个可 grep 的明确拒绝点，而不是静默什么都不做。
 4. **Skill Tester 负例缺失一票否决**：负例 ≥ 1 是 G4 在技能侧的投影，负例缺失 → fail，且不给结晶建议。
@@ -31,7 +31,7 @@ schema draft 2020-12，`additionalProperties: false`。默认策略 `pol-promoti
 | `thresholds.min_negative_transfer` | **1** | negative_transfer 证据最少条数 |
 | `thresholds.max_evidence_age_days` | **180** | 证据保鲜期（天），超龄即 stale |
 | `thresholds.require_no_dispute` | **true** | 未解决 dispute/contradiction 即拒 |
-| `activation_authority` | **A2** | draft→active 所需最低 ANF 权威级别（仅记录，不执行） |
+| `activation_authority` | **A2** | candidate→observed 及后续晋升所需最低 ANF 权威级别（仅记录，不执行） |
 
 锁定机制：
 
@@ -55,7 +55,7 @@ evaluate_promotion(capability_id, evidence_list, policy,
         │                               reasons=[{reason ∈ 固定枚举, detail}, …])
         ▼
 全部满足 → PromotionDecision(status="approved_for_draft")
-        + draft_capability_record（ANF capability-record，lifecycle_status="draft"）
+        + draft_capability_record（ANF capability-record，lifecycle_status="candidate"）
         │
         ▼
 activate_capability(...)  ──► 恒抛 GovernanceError（A2+ 人工授权，接口外）
@@ -110,7 +110,7 @@ GateDecision：`status ∈ {pass, fail}`、`reasons`（封闭词表 `SKILL_GATE_
 
 | G4 条款 | 实现点 | 测试 |
 |---|---|---|
-| 禁止一次成功自动晋升 | `lifecycle_status` 字面量 `"draft"`；无 draft→active 代码路径 | `test_full_pass_produces_draft_not_active` |
+| 禁止一次成功自动晋升 | `lifecycle_status` 字面量 `"candidate"`；无 candidate→后续态代码路径 | `test_full_pass_produces_draft_not_active` |
 | 激活是人/权限动作 | `activate_capability` 恒抛（含传 actor/authorization_ref、传 `{}`） | `test_activate_capability_always_raises_g4` |
 | 阈值预注册禁事后改口径 | policy 哈希钉死 + 加载重算 | `test_threshold_change_changes_hash`、`test_tampered_policy_rejected_on_load` |
 | 负例缺失一票否决（晋级侧） | `missing_negative_case` reason | `test_missing_negative_case_rejected_g4` |

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:cultivating-ml-agent:promotion-policy:0.1.0",
   "title": "PromotionPolicy",
-  "description": "Pre-registered promotion thresholds (SPEC-007, GOV-001). Thresholds are locked at authoring time (locked_at) and pinned by policy_content_hash (sha256 over canonical content excluding policy_content_hash and locked_at); changing a threshold requires a new policy version with supersedes semantics. The policy only ever authorizes draft production (lifecycle_status=draft): activation stays a human/authority action (G4, ADR-001 'Not promotion').",
+  "description": "Pre-registered promotion thresholds (SPEC-007, GOV-001). Thresholds are locked at authoring time (locked_at) and pinned by policy_content_hash (sha256 over canonical content excluding policy_content_hash and locked_at); changing a threshold requires a new policy version with supersedes semantics. The policy only ever authorizes initial-state production (lifecycle_status=candidate, ANF ADR-002): activation stays a human/authority action (G4, ADR-001 'Not promotion').",
   "type": "object",
   "additionalProperties": false,
   "required": [

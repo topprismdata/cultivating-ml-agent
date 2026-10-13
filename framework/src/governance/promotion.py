@@ -10,8 +10,8 @@ Iron rules this module implements:
    here comes from a hash-pinned promotion policy; there is no code-level
    default that could drift from the audited document.
 2. **Draft-only output (G4)**: a passing evaluation produces an ANF
-   capability-record with ``lifecycle_status="draft"`` and a decision marked
-   ``approved_for_draft`` — never ``active``. :func:`activate_capability`
+   capability-record with ``lifecycle_status="candidate"`` and a decision marked
+   ``approved_for_draft`` — never anything past ``candidate``. :func:`activate_capability`
    exists as the seam and unconditionally raises: activation requires a
    human/authority action (ANF policy-record authority constraint
    "Not promotion").
@@ -472,7 +472,7 @@ def _draft_capability_record(
     scope: str,
     policy: Mapping,
 ) -> dict:
-    """Build the ANF capability-record projection. lifecycle_status 恒为 draft."""
+    """Build the ANF capability-record projection. lifecycle_status 恒为 candidate（ADR-002）."""
     activation = policy["activation_authority"]
     evidence_ids = sorted({e["evidence_id"] for e in evidence})
     provenance_chain_id = "prov-" + hashlib.sha256(
@@ -484,7 +484,7 @@ def _draft_capability_record(
     )
     return {
         "capability_id": capability_id,
-        "lifecycle_status": "draft",  # G4: 接口只产 draft，激活永远是人/权限的动作
+        "lifecycle_status": "candidate",  # G4: 接口只产初始态 candidate，晋升永远是人/权限的动作（ANF ADR-002）
         "risk_level": risk_level,
         "scope": scope,
         "evidence_ids": evidence_ids,

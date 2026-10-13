@@ -1,7 +1,7 @@
 """GOV-001 promotion gate tests (SPEC-007).
 
 Covers: pre-registered threshold evaluation (逐条 reason, fixed vocabulary),
-draft-only output (G4: lifecycle_status 恒为 draft, activate 恒抛), policy
+draft-only output (G4: lifecycle_status 恒为 candidate, activate 恒抛), policy
 content-hash pinning (tamper 拒载), deterministic decision identity (no
 uuid4/wall clock in hashes), mechanical P3 projection reuse, ledger
 roundtrip + tamper interception, and validation of the draft capability
@@ -286,8 +286,8 @@ class TestDraftOnlyApproval:
         assert decision.status == "approved_for_draft"
         record = decision.draft_capability_record
         assert record is not None
-        assert record["lifecycle_status"] == "draft"
-        assert record["lifecycle_status"] != "active"
+        assert record["lifecycle_status"] == "candidate"
+        assert record["lifecycle_status"] != "observed"
         assert record["risk_level"] == "medium"
         assert record["scope"] == "project"
         assert record["capability_id"] == CAPABILITY_ID
@@ -518,7 +518,7 @@ class TestAnfSchema:
             risk_level="high", scope="organization", now=NOW,
         )
         jsonschema.validate(decision.draft_capability_record, schema)
-        assert decision.draft_capability_record["lifecycle_status"] == "draft"
+        assert decision.draft_capability_record["lifecycle_status"] == "candidate"
 
 
 # ---------------------------------------------------------------------------
