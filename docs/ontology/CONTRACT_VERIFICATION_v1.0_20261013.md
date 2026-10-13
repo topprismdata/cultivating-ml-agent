@@ -96,8 +96,9 @@ record_id 模式 `exp-er-<decision_id>-<status>` 满足 ANF `^exp-[A-Za-z0-9._-]
 | 问题 | 处置 | 证据 |
 |---|---|---|
 | Q1 词表分裂 | **ANF ADR-002**（proposed，待维护者签署）：Charter §3.2 为规范词表；capability-record 0.1.0→**0.2.0**（枚举 candidate/observed/validated-local/validated-transfer/stable/disputed/deprecated，新增 validated-transfer=ML 策略 min_task_families=2+min_negative_transfer=1 的门禁机器化）；structural_lint/knowledge-architecture 同步；ML 侧协同改 G4 字面量 draft→candidate（promotion.py/policy schema/SPEC-007/3 断言），ML 内部标识符（approved_for_draft 等 ledger 持久格式）**不改名**避免迁移 | 双仓实跑：ANF **25 passed**（新套件）；ML **220 passed/7 skipped**，其中 TestAnfSchema 2 项对新枚举实校验 PASSED |
-| Q2 ANF 无测试 | **tests/×3 + examples/schemas 正反例 + ci.yml（3.10/3.12）+ requirements-dev**；含 ADR-002 回归钉：旧值 draft 必须校验失败、枚举漂移即 CI 红 | 25/25 绿 |
-| 附加发现 | ① ML 测试的 ANF schema 拉取路径 `/tmp/anf-skilltester-check/` **陈旧克隆永不刷新**（本次手工同步才通过；建议改 fetch+reset 或 hash 比对）② PJP 5 项 parity 测试本地已可用 VisitModel venv 实跑：**26/26 通过**（真实求解器对照），CI 因无领域路径合理 skip | 见本次核验输出 |
+| Q2 ANF 无测试 | **tests/×3 + examples/schemas 正反例 + ci.yml（3.10/3.12）+ requirements-dev**；含 ADR-002 回归钉：旧值 draft 必须校验失败、枚举漂移即 CI 红 | 25/25 绿，CI success |
+| Q3 概念未上推 | **prism-ontology PR #24**（batch-003）：ml-profile 10 项局部概念（MS-PROP-038..047，一概念一文件+批次 README，预期全 profile_local）；共享核心 8 项已由 PR #21 先行提交不重复；发现编号空间冲突（datagovernance 023 已并入 main 与 PR#21 的 023 撞号，main 台账仍标 022）已在 PR 与 README 中提请委员会处置 | 本体仓 9 测试绿；PR: github.com/topprismdata/prism-ontology/pull/24 |
+| 附加发现（已修） | ① ML 测试 ANF schema 拉取路径陈旧克隆永不刷新 + 原 clone 目标路径错误（嵌套 schemas/schemas，自动拉取实际从未生效）→ 已改 clone-to-root + fetch/reset origin/main，清空缓存端到端验证 220/7 绿 ② PJP 5 项 parity 本地用 VisitModel venv 实跑 **26/26**（真实求解器对照），CI 无领域路径合理 skip | 本仓后续提交 + 核验输出 |
 
 签署 ADR-002 后，capability-record 具备 joint sign-off 条件（词表统一 + 双仓互验绿）。
 
