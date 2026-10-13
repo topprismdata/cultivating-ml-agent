@@ -57,17 +57,30 @@ CAPABILITY_ID = "cap-demo-tabular-skill"
 
 
 def anf_schema_or_none(name):
-    """Locate (or fetch) a real upstream ANF schema; None if unavailable."""
+    """Locate (or fetch) a real upstream ANF schema; None if unavailable.
+
+    An existing clone is refreshed to origin/main first: a stale copy that
+    never updates silently validates against a superseded contract (observed
+    2026-10-13 during the ADR-002 enum change). If the refresh fails (no
+    network) the existing copy is still returned — best effort, same as before.
+    """
+    repo_root = ANF_SCHEMA_DIR.parent
     path = ANF_SCHEMA_DIR / name
-    if path.exists():
-        return path
-    subprocess.run(
-        ["git", "clone", "--depth", "1", ANF_REPO_URL, str(ANF_SCHEMA_DIR)],
-        capture_output=True,
-    )
-    if path.exists():
-        return path
-    return None
+    if not path.exists():
+        subprocess.run(
+            ["git", "clone", "--depth", "1", ANF_REPO_URL, str(repo_root)],
+            capture_output=True,
+        )
+    else:
+        subprocess.run(
+            ["git", "-C", str(repo_root), "fetch", "--depth", "1", "origin", "main"],
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(repo_root), "reset", "--hard", "origin/main"],
+            capture_output=True,
+        )
+    return path if path.exists() else None
 
 
 def make_evidence(index, *, evidence_type="task_success", task_family="tabular", timestamp=FRESH_TS):
